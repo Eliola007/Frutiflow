@@ -70,6 +70,12 @@ php artisan optimize:clear
 
 # Recrear BD con datos
 php artisan migrate:fresh --seed
+
+# Ver estado de Git
+git status
+
+# Ver historial de commits
+git log --oneline
 ```
 
 ## 📊 Funcionalidades PEPS

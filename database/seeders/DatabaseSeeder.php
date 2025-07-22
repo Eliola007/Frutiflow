@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             RoleSeeder::class,
+            ProductoSeeder::class,
         ]);
 
         // Crear usuario administrador con rol
