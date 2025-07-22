@@ -3,6 +3,7 @@
 namespace App\Filament\Admin\Resources;
 
 use App\Filament\Admin\Resources\ProductoResource\Pages;
+use App\Filament\Admin\Resources\ProductoResource\Widgets;
 use App\Models\Producto;
 use App\Helpers\CurrencyHelper;
 use Filament\Forms;
@@ -328,10 +329,21 @@ class ProductoResource extends Resource
         ];
     }
 
+    public static function getWidgets(): array
+    {
+        return [
+            Widgets\ProductosOverviewWidget::class,
+            Widgets\ProductosStockChart::class,
+            Widgets\ProductosGrupoChart::class,
+            Widgets\InventarioValorChart::class,
+        ];
+    }
+
     public static function getPages(): array
     {
         return [
             'index' => Pages\ListProductos::route('/'),
+            'dashboard' => Pages\ProductosDashboard::route('/dashboard'),
             'create' => Pages\CreateProducto::route('/create'),
             'edit' => Pages\EditProducto::route('/{record}/edit'),
         ];
