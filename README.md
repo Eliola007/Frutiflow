@@ -1,23 +1,60 @@
 # 🍎 Frutiflow - Sistema de Gestión de Inventario de Frutas
 
-Sistema completo de gestión de inventario de frutas desarrollado con Laravel 11 y Filament 3, implementando la lógica PEPS (Primero en Entrar, Primero en Salir) para el control de stock.
+Sistema completo de gestión de inventario de frutas desarrollado con Laravel 11 y Filament 3, implementando la lógica PEPS (Primero en Entrar, Primero en Salir) para el control de stock, con soporte completo para pesos mexicanos y dashboard con gráficos en tiempo real.
 
-## 🚀 Características Principales
+## ✨ Características Principales
 
-- **Gestión de Inventario PEPS**: Control automático de stock con lógica "Primero en Entrar, Primero en Salir"
-- **Control de Vencimientos**: Seguimiento de fechas de vencimiento y alertas
-- **Gestión Completa**: Clientes, proveedores, productos, compras, ventas y gastos
-- **Sistema de Roles**: Control de acceso granular por rol de usuario
-- **Panel Administrativo**: Interfaz moderna con Filament 3
-- **Reportes**: Análisis de ventas, compras y estado del inventario
+- **🔄 Gestión de Inventario PEPS**: Control automático de stock con lógica "Primero en Entrar, Primero en Salir"
+- **📊 Dashboard con Gráficos**: Widgets interactivos con métricas en tiempo real
+- **💰 Soporte para Pesos Mexicanos**: Formato de moneda MXN con locale mexicano
+- **⏰ Control de Vencimientos**: Seguimiento de fechas de vencimiento y alertas
+- **🏢 Gestión Completa**: Clientes, proveedores, productos, compras, ventas y gastos
+- **👥 Sistema de Roles**: Control de acceso granular por rol de usuario
+- **🎨 Panel Administrativo**: Interfaz moderna con Filament 3
+- **📈 Reportes Visuales**: Análisis gráfico de ventas, stock y distribución
 
 ## 🛠️ Tecnologías Utilizadas
 
 - **Backend**: Laravel 11 (PHP 8.2+)
-- **Frontend Admin**: Filament 3
+- **Frontend Admin**: Filament 3 con Widgets y Charts
 - **Base de Datos**: SQLite
-- **Autenticación**: Laravel Sanctum
-- **UI Components**: Blade + Livewire
+- **Autenticación**: Laravel Sanctum con roles
+- **UI Components**: Blade + Livewire + Chart.js
+- **Localización**: Español México (es_MX)
+- **Moneda**: Peso Mexicano (MXN)
+
+## 📊 Dashboard y Widgets
+
+### 🎯 Widgets Implementados
+
+1. **ProductosOverviewWidget** - Estadísticas Generales
+   - Total de productos (activos/inactivos)
+   - Stock total y disponible
+   - Productos sin stock
+   - Valor total del inventario en MXN
+   - Margen de ganancia promedio
+
+2. **ProductosStockChart** - Gráfico de Barras
+   - Top 10 productos con mayor stock
+   - Colores dinámicos por nivel de inventario
+   - Formato con unidades específicas
+
+3. **ProductosGrupoChart** - Gráfico Circular
+   - Distribución de productos por grupos
+   - Vista porcentual de categorías
+   - Colores diferenciados
+
+4. **InventarioValorChart** - Gráfico Doughnut
+   - Valor del inventario por grupo en MXN
+   - Formato de moneda en tooltips
+   - Vista financiera del stock
+
+### 🎨 Páginas del Dashboard
+
+- **`/admin/productos/dashboard`** - Dashboard dedicado con todos los widgets
+- **`/admin/productos`** - Lista con widgets integrados en header/footer
+- **Diseño responsivo** - Se adapta a móviles y escritorio
+- **Actualización en tiempo real** - Datos siempre actualizados
 
 ## 📦 Estructura del Proyecto
 
@@ -39,6 +76,8 @@ Proveedor
 
 Producto
 ├── hasMany: Compra, Venta, Inventario
+├── cast: precio_compra_referencia, precio_venta_sugerido (decimal)
+├── accessors: precio_compra_formatted, precio_venta_formatted
 
 Compra
 ├── belongsTo: Proveedor, User, Producto
@@ -49,96 +88,216 @@ Venta
 
 Inventario (PEPS)
 ├── belongsTo: Producto, Compra
+├── attributes: lote, fecha_ingreso, fecha_vencimiento, estado
+```
+
+### 🏗️ Arquitectura de Archivos
+
+```
+app/
+├── Filament/Admin/Resources/
+│   ├── ProductoResource.php
+│   └── ProductoResource/
+│       ├── Pages/
+│       │   ├── ListProductos.php
+│       │   ├── CreateProducto.php
+│       │   ├── EditProducto.php
+│       │   └── ProductosDashboard.php
+│       └── Widgets/
+│           ├── ProductosOverviewWidget.php
+│           ├── ProductosStockChart.php
+│           ├── ProductosGrupoChart.php
+│           └── InventarioValorChart.php
+├── Helpers/
+│   └── CurrencyHelper.php
+└── Models/
+    ├── Producto.php (con accessors de formato MXN)
+    ├── Cliente.php
+    ├── Proveedor.php
+    ├── Compra.php
+    ├── Venta.php
+    ├── Inventario.php
+    └── User.php
+
+database/
+├── migrations/ (11 migraciones optimizadas)
+└── seeders/
+    ├── DatabaseSeeder.php
+    └── ProductoSeeder.php (10 productos ejemplo)
+
+resources/views/filament/admin/resources/
+└── producto-resource/pages/
+    └── productos-dashboard.blade.php
 ```
 
 ## 🚀 Instalación y Uso
 
-### Credenciales por Defecto
+### 📋 Requisitos Previos
+- PHP 8.2+
+- Composer
+- Node.js (para assets)
+- SQLite habilitado
+
+### ⚡ Instalación Rápida
+
+```bash
+# Clonar repositorio
+git clone [tu-repo-url] frutiflow
+cd frutiflow
+
+# Instalar dependencias
+composer install
+
+# Configurar entorno
+cp .env.example .env
+php artisan key:generate
+
+# Ejecutar migraciones con datos de ejemplo
+php artisan migrate:fresh --seed
+
+# Iniciar servidor
+php artisan serve
+```
+
+### 🔐 Credenciales por Defecto
 - **Email**: admin@frutiflow.com
 - **Contraseña**: password123
 - **Panel Admin**: `http://localhost:8000/admin`
+- **Dashboard**: `http://localhost:8000/admin/productos/dashboard`
+
+### 🌐 URLs Principales
 - **Login**: `http://localhost:8000/admin/login`
-- **Ruta Raíz**: `http://localhost:8000/` (redirige automáticamente a `/admin`)
+- **Productos**: `http://localhost:8000/admin/productos`
+- **Dashboard**: `http://localhost:8000/admin/productos/dashboard`
+- **Crear Producto**: `http://localhost:8000/admin/productos/create`
 
-### Comandos Principales
-```bash
-# Iniciar servidor
-php artisan serve
+## 💰 Sistema de Moneda Mexicana
 
-# Limpiar cachés
-php artisan optimize:clear
+### 🇲🇽 Configuración Regional
+- **Moneda**: Peso Mexicano (MXN)
+- **Locale**: Español México (es_MX)
+- **Zona Horaria**: America/Mexico_City
+- **Formato**: $1,234.56 MXN
 
-# Recrear BD con datos
-php artisan migrate:fresh --seed
+### 🔧 CurrencyHelper
+```php
+// Formateo automático
+CurrencyHelper::format(1234.56) // "$1,234.56"
+CurrencyHelper::formatWithCurrency(1234.56) // "$1,234.56 MXN"
 
-# Ver estado de Git
-git status
-
-# Ver historial de commits
-git log --oneline
+// Obtener configuración
+CurrencyHelper::getCurrency() // "MXN"
+CurrencyHelper::getLocale() // "es_MX"
+CurrencyHelper::getCurrencySymbol() // "$"
 ```
 
 ## 📊 Funcionalidades PEPS
 
-El sistema implementa automáticamente:
-1. **Entrada**: Cada compra genera lotes con fecha de ingreso
-2. **Salida**: Las ventas consumen primero el stock más antiguo  
-3. **Control**: Alertas de vencimiento y gestión automática
+### 🔄 Flujo Automático
+1. **Entrada (Compras)**:
+   - Cada compra genera lotes con fecha de ingreso
+   - Asignación automática de fechas de vencimiento
+   - Cálculo de costo promedio PEPS
+
+2. **Salida (Ventas)**:
+   - Las ventas consumen primero el stock más antiguo
+   - Actualización automática de inventario
+   - Control de disponibilidad por lotes
+
+3. **Control de Vencimientos**:
+   - Alertas automáticas de productos próximos a vencer
+   - Estados: disponible, reservado, vencido
+   - Reportes de mermas y pérdidas
+
+## 🎨 Características de UI/UX
+
+### 🌈 Sistema de Colores Inteligentes
+- **Verde**: Stock alto (>50), margen alto (≥30%)
+- **Naranja**: Stock medio (20-50), margen medio (15-29%)
+- **Rojo**: Stock bajo (<20), margen bajo (<15%)
+- **Gris**: Sin datos o inactivo
+
+### 📱 Diseño Responsivo
+- **Desktop**: Grid de 2 columnas para gráficos
+- **Tablet**: Layout adaptativo
+- **Mobile**: Vista vertical optimizada
+
+### ⚡ Interactividad
+- **Tooltips informativos** en todos los gráficos
+- **Filtros dinámicos** en tablas
+- **Búsqueda en tiempo real**
+- **Ordenamiento por columnas**
+
+## 🔧 Comandos de Desarrollo
+
+```bash
+# Desarrollo
+php artisan serve                    # Iniciar servidor
+php artisan migrate:fresh --seed     # Recrear BD con datos
+
+# Cache y optimización
+php artisan optimize:clear           # Limpiar todos los cachés
+php artisan config:clear            # Cache de configuración
+php artisan filament:cache-components # Cache de componentes Filament
+
+# Base de datos
+php artisan migrate                  # Ejecutar migraciones
+php artisan db:seed --class=ProductoSeeder # Sembrar productos
+
+# Debugging
+php artisan route:list               # Ver todas las rutas
+php artisan queue:work              # Procesar colas (si aplica)
+```
+
+## 📈 Métricas y KPIs
+
+El dashboard proporciona las siguientes métricas clave:
+
+### 📊 Indicadores Principales
+- **Total de productos** con breakdown activos/inactivos
+- **Stock total** en unidades específicas (cajas, kg, etc.)
+- **Valor del inventario** en pesos mexicanos
+- **Margen de ganancia promedio** con semáforo de colores
+- **Productos sin stock** para reabastecimiento
+
+### 📈 Visualizaciones
+- **Gráfico de barras**: Top 10 productos por stock
+- **Gráfico circular**: Distribución por grupos de frutas
+- **Gráfico doughnut**: Valor económico por grupo
+- **Estadísticas cards**: KPIs principales con iconos
+
+## 🤝 Contribución y Desarrollo
+
+### 🔀 Historial de Commits
+```bash
+git log --oneline
+# 83e0ae3 feat: Implementar sistema completo de widgets y gráficos para dashboard
+# b1e60d9 feat: Implementar sistema completo de gestión de productos con pesos mexicanos
+# 7c33c6e Commit inicial: Frutiflow - Sistema de Gestión de Inventario con lógica PEPS
+```
+
+### 🚀 Roadmap
+- [ ] Módulo de Compras con integración PEPS
+- [ ] Módulo de Ventas con consumo automático
+- [ ] Alertas de vencimiento por email
+- [ ] Reportes PDF personalizables
+- [ ] API REST para integraciones
+- [ ] App móvil para inventario
 
 ---
 
-Desarrollado con Laravel 11 + Filament 3
+## 📄 Licencia
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Este proyecto está bajo la licencia MIT. Ver el archivo `LICENSE` para más detalles.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## 👨‍💻 Desarrollado con
 
-## Learning Laravel
+- **Laravel 11** - Framework PHP moderno
+- **Filament 3** - Panel administrativo elegante
+- **Chart.js** - Gráficos interactivos
+- **Tailwind CSS** - Diseño responsive
+- **Livewire** - Componentes reactivos
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+---
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
-
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-## Laravel Sponsors
-
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
-
-### Premium Partners
-
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+**🍎 Frutiflow** - *Sistema profesional de gestión de inventario de frutas con tecnología de vanguardia*
