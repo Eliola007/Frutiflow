@@ -1,23 +1,14 @@
-# 🍎## ✨ Características Principales
+# 🍎 Frutiflow - Sistema de Gestión de Inventario de Frutas
 
-- **🔄 Gestión de Inventario PEPS**: Control automático de stock con lógica "Primero en Entrar, Primero en Salir"
-- **� Control de Créditos Integral**: Sistema completo de gestión crediticia con límites, pagos y morosidad
-- **�📊 Dashboard con Widgets**: Múltiples widgets interactivos con métricas en tiempo real
-- **🤖 Metas Inteligentes**: Cálculo automático de objetivos basado en datos históricos y tendencias
-- **💰 Soporte para Pesos Mexicanos**: Formato de moneda MXN con locale mexicano
-- **⏰ Control de Vencimientos**: Seguimiento de fechas de vencimiento y alertas
-- **🏢 Gestión Completa**: Clientes, proveedores, productos, compras, ventas y gastos
-- **👥 Sistema de Roles**: Control de acceso granular por rol de usuario
-- **🎨 Panel Administrativo**: Interfaz moderna con Filament 3
-- **📈 Reportes Visuales**: Análisis gráfico de ventas, stock, créditos y cobranza- Sistema de Gestión de Inventario de Frutas
-
-Sistema completo de gestión de inventario de frutas desarrollado con Laravel 11 y Filament 3, implementando la lógica PEPS (Primero en Entrar, Primero en Salir) para el control de stock, con sistema integral de control de créditos y dashboard con gráficos en tiempo real.
+Sistema completo de gestión de inventario de frutas desarrollado con Laravel 11 y Filament 3, implementando la lógica PEPS (Primero en Entrar, Primero en Salir) para el control de stock, con sistema integral de control de créditos, gestión de compras multi-producto y dashboard con gráficos en tiempo real.
 
 ## ✨ Características Principales
 
 - **🔄 Gestión de Inventario PEPS**: Control automático de stock con lógica "Primero en Entrar, Primero en Salir"
-- **� Control de Créditos Integral**: Sistema completo de gestión crediticia con límites, pagos y morosidad
-- **�📊 Dashboard con Widgets**: Múltiples widgets interactivos con métricas en tiempo real
+- **🛒 Sistema de Compras Avanzado**: Compras multi-producto con Repeater para múltiples items por transacción
+- **💳 Control de Créditos Integral**: Sistema completo de gestión crediticia con límites, pagos y morosidad
+- **📊 Dashboard con Widgets**: Múltiples widgets interactivos con métricas en tiempo real
+- **🤖 Metas Inteligentes**: Cálculo automático de objetivos basado en datos históricos y tendencias
 - **💰 Soporte para Pesos Mexicanos**: Formato de moneda MXN con locale mexicano
 - **⏰ Control de Vencimientos**: Seguimiento de fechas de vencimiento y alertas
 - **🏢 Gestión Completa**: Clientes, proveedores, productos, compras, ventas y gastos
@@ -28,16 +19,50 @@ Sistema completo de gestión de inventario de frutas desarrollado con Laravel 11
 ## 🛠️ Tecnologías Utilizadas
 
 - **Backend**: Laravel 11 (PHP 8.2+)
-- **Frontend Admin**: Filament 3 con Widgets y Charts
-- **Base de Datos**: SQLite
+- **Frontend Admin**: Filament 3 con Widgets, Charts y Repeaters
+- **Base de Datos**: SQLite con migraciones automáticas
 - **Autenticación**: Laravel Sanctum con roles
 - **UI Components**: Blade + Livewire + Chart.js
 - **Localización**: Español México (es_MX)
 - **Moneda**: Peso Mexicano (MXN)
 
+## 🛒 Sistema de Compras Multi-Producto
+
+### 🔄 Nueva Arquitectura de Compras
+- **Modelo Compra**: Información general de la transacción (proveedor, fecha, total, tipo de pago)
+- **Modelo CompraItem**: Items individuales por compra (producto, cantidad, precio, lote, vencimiento)
+- **Relación hasMany**: Una compra puede tener múltiples productos
+- **Estructura Normalizada**: Eliminación de redundancia y mejor organización de datos
+
+### 🎨 Interfaz con Repeater
+- **Múltiples Productos**: Agregar/eliminar productos dinámicamente sin perder datos
+- **Cálculos Automáticos**: Subtotal por item y total general en tiempo real
+- **Validaciones**: Mínimo 1 producto requerido por compra
+- **Etiquetas Dinámicas**: Cada item muestra producto y subtotal
+- **Reordenamiento**: Items reorganizables con botones
+- **Confirmaciones**: Protección al eliminar items
+
+### 💰 Tipos de Pago Avanzados
+- **Contado**: Pago inmediato al recibir mercancía
+- **Crédito**: Pago diferido con fecha límite
+- **Crédito + Enganche**: Pago parcial inicial más saldo a crédito
+- **Generación Automática**: Pagos de enganche creados automáticamente
+
+### 📦 Gestión de Lotes PEPS
+- **Lotes Automáticos**: Generación por item con formato LOTE-001-2025
+- **Numeración Inteligente**: Reinicio automático por año
+- **Fechas de Vencimiento**: Control individual por producto
+- **Integración Inventario**: Creación automática de registros PEPS al recibir
+
+### 🔔 Notificaciones Inteligentes
+- **Diferencias de Precio**: Alertas cuando el precio difiere >10% del promedio histórico
+- **Comparación por Producto**: Análisis individual de cada item
+- **Persistencia**: Notificaciones importantes permanecen visibles
+- **Contexto Detallado**: Información específica del producto y porcentaje de diferencia
+
 ## 📊 Dashboard y Widgets
 
-### � Módulo de Productos
+### 🍎 Módulo de Productos
 1. **ProductosOverviewWidget** - Estadísticas Generales
    - Total de productos (activos/inactivos)
    - Stock total y disponible
@@ -133,7 +158,7 @@ Sistema completo de gestión de inventario de frutas desarrollado con Laravel 11
 
 ## 💳 Gestión de Créditos y Control Financiero
 
-### �️ Sistema de Créditos Integral
+### 🛡️ Sistema de Créditos Integral
 - **Límites de Crédito**: Configuración por cliente en MXN
 - **Días de Crédito**: Control de plazos de pago (1-365 días)
 - **Estados de Crédito**: Activo, Suspendido, Bloqueado
@@ -147,457 +172,169 @@ Sistema completo de gestión de inventario de frutas desarrollado con Laravel 11
 - **Actualización Automática**: Observer para actualizar saldos
 - **Histórico Completo**: Registro detallado de todos los movimientos
 
-### 📊 Widgets de Crédito en Tiempo Real
-- **Métricas Financieras**: Deuda total, pagos del mes, promedios
-- **Alertas Visuales**: Semáforos por estado de crédito
-- **Top Deudores**: Lista de clientes con mayor saldo pendiente
-- **Control de Morosidad**: Seguimiento de pagos vencidos
-- **Evolución Temporal**: Gráficos de tendencias de cobranza
+## 🔄 Sistema PEPS (Primero en Entrar, Primero en Salir)
 
-## 🎨 Páginas del Dashboard
+### 📦 Control de Inventario
+- **Entrada Automática**: Registros de inventario al recibir compras
+- **Salida PEPS**: Consumo automático del stock más antiguo en ventas
+- **Trazabilidad de Lotes**: Seguimiento completo por lote
+- **Fechas de Vencimiento**: Control de productos próximos a vencer
+- **Estados de Inventario**: Disponible, Reservado, Vencido
 
-### 📍 Rutas Principales
-- **`/admin/productos`** - Dashboard de productos con widgets
-- **`/admin/clientes`** - Dashboard de créditos y cobranza
-- **`/admin/pago-clientes`** - Dashboard de evolución de pagos
-- **`/admin/proveedors`** - Gestión de proveedores y créditos
-- **`/admin/pagos-proveedors`** - Dashboard de pagos a proveedores
-- **Diseño responsivo** - Se adapta a móviles y escritorio
-- **Actualización en tiempo real** - Polling automático de datos
+### 🏷️ Gestión de Lotes
+- **Generación Automática**: Formato LOTE-001-2025
+- **Numeración Inteligente**: Secuencial con reinicio anual
+- **Información Completa**: Fecha de ingreso, vencimiento, proveedor
+- **Búsqueda Avanzada**: Filtros por lote, fecha, estado
 
-## 📦 Estructura del Proyecto
+## 📈 Análisis y Reportes
 
-### Modelos y Relaciones
+### 📊 Widgets de Rendimiento
+- **Actualización en Tiempo Real**: Datos actualizados automáticamente
+- **Gráficos Interactivos**: Chart.js con tooltips informativos
+- **Filtros Dinámicos**: Personalización de períodos y criterios
+- **Exportación**: Datos descargables en diferentes formatos
 
-```
-User (Usuario)
-├── belongsTo: Role
-├── hasMany: Compra, Venta, Gasto, PagoCliente, PagoProveedor
+### 🎯 Metas Inteligentes
+- **Cálculo Automático**: Basado en datos históricos y tendencias
+- **Factores Estacionales**: Consideración de variaciones temporales
+- **Alertas Proactivas**: Notificaciones de desviaciones significativas
+- **Seguimiento Continuo**: Monitoreo de cumplimiento de objetivos
 
-Role (Rol)
-├── hasMany: User
+## 🚀 Instalación y Configuración
 
-Cliente
-├── hasMany: Venta, PagoCliente
-├── attributes: limite_credito, dias_credito, saldo_pendiente, estado_credito
-├── methods: puedeComprarMonto(), actualizarEstadoCredito(), getPorcentajeCreditoUsado()
+### 📋 Requisitos
+- PHP 8.2 o superior
+- Composer 2.x
+- Node.js 18+ y NPM
+- SQLite 3.x
 
-PagoCliente
-├── belongsTo: Cliente, User
-├── types: pago, anticipo, abono
-├── methods: efectivo, transferencia, cheque, tarjeta
-├── observer: PagoClienteObserver (actualiza saldos automáticamente)
-
-Proveedor
-├── hasMany: Compra, PagoProveedor
-├── attributes: rfc, limite_credito, dias_credito, saldo_pendiente, estado_credito
-├── methods: descuento_especial, contacto_principal, ultima_compra, validarRFC()
-
-PagoProveedor
-├── belongsTo: Proveedor, User
-├── types: pago, anticipo, abono
-├── methods: efectivo, transferencia, cheque, tarjeta
-├── observer: PagoProveedorObserver (actualiza saldos automáticamente)
-
-Producto
-├── hasMany: Compra, Venta, Inventario
-├── cast: precio_compra_referencia, precio_venta_sugerido (decimal)
-├── accessors: precio_compra_formatted, precio_venta_formatted
-
-Compra
-├── belongsTo: Proveedor, User, Producto
-├── hasMany: Inventario
-
-Venta
-├── belongsTo: Cliente, User, Producto
-
-Inventario (PEPS)
-├── belongsTo: Producto, Compra
-├── attributes: lote, fecha_ingreso, fecha_vencimiento, estado
-```
-
-### 🏗️ Arquitectura de Archivos
-
-```
-app/
-├── Filament/Admin/Resources/
-│   ├── ProductoResource.php
-│   ├── ClienteResource.php
-│   ├── PagoClienteResource.php
-│   ├── ProveedorResource.php
-│   ├── PagosProveedorResource.php
-│   ├── ProductoResource/Widgets/
-│   │   ├── ProductosOverviewWidget.php
-│   │   ├── ProductosStockChart.php
-│   │   ├── ProductosGrupoChart.php
-│   │   └── InventarioValorChart.php
-│   ├── ClienteResource/Widgets/
-│   │   ├── EstadisticasCreditoWidget.php
-│   │   ├── ClientesMayorDeudaWidget.php
-│   │   └── PagosVencidosWidget.php
-│   ├── PagoClienteResource/Widgets/
-│   │   └── EvolucionPagosChart.php
-│   ├── ProveedorResource/Widgets/
-│   │   ├── EstadisticasProveedoresWidget.php
-│   │   └── ProveedoresMayorDeudaWidget.php
-│   └── PagosProveedorResource/Widgets/
-│       └── EvolucionPagosChart.php
-├── Helpers/
-│   └── CurrencyHelper.php
-├── Observers/
-│   ├── PagoClienteObserver.php
-│   └── PagoProveedorObserver.php
-└── Models/
-    ├── Producto.php (con accessors de formato MXN)
-    ├── Cliente.php (con sistema de créditos)
-    ├── PagoCliente.php (con trazabilidad)
-    ├── Proveedor.php (con sistema de créditos)
-    ├── PagoProveedor.php (con trazabilidad)
-    ├── Compra.php
-    ├── Venta.php
-    ├── Inventario.php
-    └── User.php
-```
-
-### 🏗️ Arquitectura de Archivos
-
-```
-app/
-├── Filament/Admin/Resources/
-│   ├── ProductoResource.php
-│   └── ProductoResource/
-│       ├── Pages/
-│       │   ├── ListProductos.php
-│       │   ├── CreateProducto.php
-│       │   ├── EditProducto.php
-│       │   └── ProductosDashboard.php
-│       └── Widgets/
-│           ├── ProductosOverviewWidget.php
-│           ├── ProductosStockChart.php
-│           ├── ProductosGrupoChart.php
-│           └── InventarioValorChart.php
-├── Helpers/
-│   └── CurrencyHelper.php
-└── Models/
-    ├── Producto.php (con accessors de formato MXN)
-    ├── Cliente.php
-    ├── Proveedor.php
-    ├── Compra.php
-    ├── Venta.php
-    ├── Inventario.php
-    └── User.php
-
-database/
-├── migrations/ (11 migraciones optimizadas)
-└── seeders/
-    ├── DatabaseSeeder.php
-    └── ProductoSeeder.php (10 productos ejemplo)
-
-resources/views/filament/admin/resources/
-└── producto-resource/pages/
-    └── productos-dashboard.blade.php
-```
-
-## 🚀 Instalación y Uso
-
-### 📋 Requisitos Previos
-- PHP 8.2+
-- Composer
-- Node.js (para assets)
-- SQLite habilitado
-
-### ⚡ Instalación Rápida
+### ⚙️ Instalación
 
 ```bash
-# Clonar repositorio
-git clone [tu-repo-url] frutiflow
+# Clonar el repositorio
+git clone https://github.com/tu-usuario/frutiflow.git
 cd frutiflow
 
-# Instalar dependencias
+# Instalar dependencias de PHP
 composer install
 
-# Configurar entorno
+# Instalar dependencias de Node.js
+npm install
+
+# Configurar el archivo de entorno
 cp .env.example .env
 php artisan key:generate
 
-# Ejecutar migraciones con datos de ejemplo
-php artisan migrate:fresh --seed
+# Ejecutar migraciones y seeders
+php artisan migrate --seed
 
-# Iniciar servidor
+# Compilar assets
+npm run build
+
+# Iniciar el servidor de desarrollo
 php artisan serve
 ```
 
-### 🔐 Credenciales por Defecto
+### 🗃️ Base de Datos
+El sistema utiliza SQLite por defecto para facilitar el desarrollo y despliegue. La base de datos se crea automáticamente en `database/database.sqlite`.
+
+### 👤 Usuario por Defecto
 - **Email**: admin@frutiflow.com
-- **Contraseña**: password123
-- **Panel Admin**: `http://localhost:8000/admin`
-- **Dashboard**: `http://localhost:8000/admin/productos/dashboard`
+- **Contraseña**: password
+- **Rol**: Administrador
 
-### 🌐 URLs Principales
-- **Login**: `http://localhost:8000/admin/login`
-- **Productos**: `http://localhost:8000/admin/productos`
-- **Clientes**: `http://localhost:8000/admin/clientes`
-- **Pagos Clientes**: `http://localhost:8000/admin/pago-clientes`
-- **Proveedores**: `http://localhost:8000/admin/proveedors`
-- **Pagos Proveedores**: `http://localhost:8000/admin/pagos-proveedors`
-- **Dashboard**: `http://localhost:8000/admin/productos/dashboard`
+## 🔧 Funcionalidades Técnicas
 
-## 💰 Sistema de Moneda Mexicana
+### 🛡️ Seguridad
+- **Autenticación**: Laravel Sanctum
+- **Autorización**: Sistema de roles y permisos
+- **Validaciones**: Reglas de validación robustas
+- **Sanitización**: Limpieza automática de datos de entrada
 
-### 🇲🇽 Configuración Regional
-- **Moneda**: Peso Mexicano (MXN)
-- **Locale**: Español México (es_MX)
-- **Zona Horaria**: America/Mexico_City
-- **Formato**: $1,234.56 MXN
+### 🔄 Observers y Events
+- **CompraObserver**: Automatización de procesos de compra
+- **PagoClienteObserver**: Actualización automática de saldos
+- **PagoProveedorObserver**: Control de pagos a proveedores
+- **Notificaciones**: Sistema de alertas en tiempo real
 
-### 🔧 CurrencyHelper
-```php
-// Formateo automático
-CurrencyHelper::format(1234.56) // "$1,234.56"
-CurrencyHelper::formatWithCurrency(1234.56) // "$1,234.56 MXN"
+### 🎨 UI/UX
+- **Filament 3**: Panel administrativo moderno y responsivo
+- **Widgets Personalizados**: Componentes específicos del negocio
+- **Tema Personalizado**: Colores y diseño adaptado al sector
+- **Navegación Intuitiva**: Menús organizados por módulos
 
-// Obtener configuración
-CurrencyHelper::getCurrency() // "MXN"
-CurrencyHelper::getLocale() // "es_MX"
-CurrencyHelper::getCurrencySymbol() // "$"
-```
+## 🌟 Módulos del Sistema
 
-## 📊 Funcionalidades PEPS
+### 👥 Clientes
+- Gestión completa de clientes
+- Control de crédito individual
+- Historial de compras y pagos
+- Estados de cuenta detallados
 
-### 🔄 Flujo Automático
-1. **Entrada (Compras)**:
-   - Cada compra genera lotes con fecha de ingreso
-   - Asignación automática de fechas de vencimiento
-   - Cálculo de costo promedio PEPS
+### 🏭 Proveedores
+- Catálogo de proveedores activos
+- Control de pagos y deudas
+- Historial de compras realizadas
+- Evaluación de desempeño
 
-2. **Salida (Ventas)**:
-   - Las ventas consumen primero el stock más antiguo
-   - Actualización automática de inventario
-   - Control de disponibilidad por lotes
+### 🍎 Productos
+- Catálogo de frutas y productos
+- Control de precios y márgenes
+- Gestión de grupos y categorías
+- Seguimiento de rentabilidad
 
-3. **Control de Vencimientos**:
-   - Alertas automáticas de productos próximos a vencer
-   - Estados: disponible, reservado, vencido
-   - Reportes de mermas y pérdidas
+### 📦 Inventario
+- Control PEPS automatizado
+- Alertas de stock mínimo
+- Productos próximos a vencer
+- Valorización de inventario
 
-## 🎨 Características de UI/UX
+### 🛒 Compras
+- **Nueva Arquitectura Multi-Producto**
+- Registro con múltiples items
+- Tipos de pago flexibles
+- Generación automática de lotes
+- Integración directa con inventario
 
-### 🌈 Sistema de Colores Inteligentes
-- **Verde**: Stock alto (>50), margen alto (≥30%)
-- **Naranja**: Stock medio (20-50), margen medio (15-29%)
-- **Rojo**: Stock bajo (<20), margen bajo (<15%)
-- **Gris**: Sin datos o inactivo
+### 💰 Ventas
+- Procesamiento PEPS automático
+- Control de crédito en tiempo real
+- Múltiples métodos de pago
+- Facturación integrada
 
-### 📱 Diseño Responsivo
-- **Desktop**: Grid de 2 columnas para gráficos
-- **Tablet**: Layout adaptativo
-- **Mobile**: Vista vertical optimizada
+### 🧾 Gastos
+- Categorización de gastos operativos
+- Control presupuestario
+- Análisis de costos
+- Reportes de rentabilidad
 
-### ⚡ Interactividad
-- **Tooltips informativos** en todos los gráficos
-- **Filtros dinámicos** en tablas
-- **Búsqueda en tiempo real**
-- **Ordenamiento por columnas**
+## 📞 Soporte y Contribución
 
-## 🔧 Comandos de Desarrollo
+### 🐛 Reportar Errores
+Para reportar errores, por favor crea un issue en GitHub incluyendo:
+- Descripción detallada del problema
+- Pasos para reproducir el error
+- Screenshots si es aplicable
+- Información del entorno (PHP, Laravel, etc.)
 
-```bash
-# Desarrollo
-php artisan serve                    # Iniciar servidor
-php artisan migrate:fresh --seed     # Recrear BD con datos
+### 🤝 Contribuir
+Las contribuciones son bienvenidas. Por favor:
+1. Fork el repositorio
+2. Crea una rama para tu feature (`git checkout -b feature/nueva-funcionalidad`)
+3. Commit tus cambios (`git commit -am 'Agregar nueva funcionalidad'`)
+4. Push a la rama (`git push origin feature/nueva-funcionalidad`)
+5. Crea un Pull Request
 
-# Cache y optimización
-php artisan optimize:clear           # Limpiar todos los cachés
-php artisan config:clear            # Cache de configuración
-php artisan filament:cache-components # Cache de componentes Filament
-
-# Base de datos
-php artisan migrate                  # Ejecutar migraciones
-php artisan db:seed --class=ProductoSeeder # Sembrar productos
-
-# Debugging
-php artisan route:list               # Ver todas las rutas
-php artisan queue:work              # Procesar colas (si aplica)
-```
-
-## 📈 Métricas y KPIs
-
-### 📊 Dashboard de Productos
-- **Total de productos** con breakdown activos/inactivos
-- **Stock total** en unidades específicas (cajas, kg, etc.)
-- **Valor del inventario** en pesos mexicanos
-- **Margen de ganancia promedio** con semáforo de colores
-- **Productos sin stock** para reabastecimiento
-
-### 💳 Dashboard de Créditos
-- **Deuda total por cobrar** con formato MXN
-- **Clientes con saldo pendiente** y estado del crédito
-- **Límites próximos a agotar** (≥80% utilizado)
-- **Pagos vencidos** con días de retraso
-- **Pagos del mes** vs metas de cobranza
-- **Promedio de días de crédito** otorgados
-
-### 📈 Visualizaciones Avanzadas
-- **Gráfico de barras**: Top 10 productos por stock
-- **Gráfico circular**: Distribución por grupos de frutas
-- **Gráfico doughnut**: Valor económico por grupo
-- **Gráfico de líneas**: Evolución de pagos y metas
-- **Estadísticas cards**: KPIs principales con iconos
-
-### 🎯 Indicadores de Color Inteligentes
-- **🟢 Verde**: Estados saludables (< 70% crédito usado)
-- **🟡 Amarillo**: Advertencias (70-89% crédito usado)  
-- **🔴 Rojo**: Crítico (≥90% crédito usado o bloqueado)
-- **⚪ Gris**: Sin datos o estados neutros
-
-## 💰 Helper de Moneda Mexicana
-
-```php
-use App\Helpers\CurrencyHelper;
-
-// Formateo automático
-CurrencyHelper::format(1234.56) // "$1,234.56"
-CurrencyHelper::formatWithCurrency(1234.56) // "$1,234.56 MXN"
-
-// Obtener configuración
-CurrencyHelper::getCurrency() // "MXN"
-CurrencyHelper::getLocale() // "es_MX"
-CurrencyHelper::getCurrencySymbol() // "$"
-```
-
-## 📊 Funcionalidades PEPS
-
-### 🔄 Flujo Automático
-1. **Entrada (Compras)**:
-   - Cada compra genera lotes con fecha de ingreso
-   - Asignación automática de fechas de vencimiento
-   - Cálculo de costo promedio PEPS
-
-2. **Salida (Ventas)**:
-   - Las ventas consumen primero el stock más antiguo
-   - Actualización automática de inventario
-   - Control de disponibilidad por lotes
-
-3. **Control de Vencimientos**:
-   - Alertas automáticas de productos próximos a vencer
-   - Estados: disponible, reservado, vencido
-   - Reportes de mermas y pérdidas
-
-## 🎨 Características de UI/UX
-
-### 🌈 Sistema de Colores Inteligentes
-- **Verde**: Stock alto (>50), margen alto (≥30%), crédito saludable
-- **Naranja**: Stock medio (20-50), margen medio (15-29%), advertencias
-- **Rojo**: Stock bajo (<20), margen bajo (<15%), crítico
-- **Gris**: Sin datos o inactivo
-
-### 📱 Diseño Responsivo
-- **Desktop**: Grid de múltiples columnas para widgets
-- **Tablet**: Layout adaptativo
-- **Mobile**: Vista vertical optimizada
-
-### ⚡ Interactividad
-- **Tooltips informativos** en todos los gráficos
-- **Filtros dinámicos** en tablas
-- **Búsqueda en tiempo real**
-- **Polling automático** para datos actualizados
-- **Badges de estado** con colores semánticos
-
-## 🔧 Comandos de Desarrollo
-
-```bash
-# Desarrollo
-php artisan serve                    # Iniciar servidor
-php artisan migrate:fresh --seed     # Recrear BD con datos de prueba
-
-# Seeders específicos
-php artisan db:seed --class=ClienteSeeder      # Datos de clientes
-php artisan db:seed --class=PagoClienteSeeder  # Datos de pagos
-
-# Cache y limpieza
-php artisan config:clear             # Limpiar configuración
-php artisan view:clear              # Limpiar vistas
-php artisan filament:clear-cached-components  # Limpiar widgets
-
-## 🤝 Contribución y Desarrollo
-
-## 🤝 Contribución y Desarrollo
-
-### 🔀 Historial de Commits
-```bash
-git log --oneline
-# feat: Implementar sistema completo de créditos con widgets dashboard
-# feat: Implementar sistema completo de widgets y gráficos para dashboard
-# feat: Implementar sistema completo de gestión de productos con pesos mexicanos
-# Commit inicial: Frutiflow - Sistema de Gestión de Inventario con lógica PEPS
-```
-
-### 🚀 Roadmap
-- [x] **Sistema de Créditos Completo** - Control de límites, pagos y morosidad
-- [x] **Dashboard con Widgets** - Métricas visuales en tiempo real  
-- [x] **Gestión de Productos** - CRUD completo con formato MXN
-- [x] **Gestión de Proveedores** - Control de créditos y pagos a proveedores
-- [ ] **Módulo de Compras** - Integración PEPS con proveedores
-- [ ] **Módulo de Ventas** - Consumo automático de inventario
-- [ ] **Alertas de Vencimiento** - Notificaciones por email
-- [ ] **Reportes PDF** - Documentos personalizables
-- [ ] **API REST** - Endpoints para integraciones
-- [ ] **App Móvil** - Cliente para gestión de inventario
-
-### 📊 Estado Actual del Proyecto
-- ✅ **Gestión de Clientes con Créditos**: 100% completo
-- ✅ **Sistema de Pagos a Clientes**: 100% completo  
-- ✅ **Widgets de Dashboard**: 100% completo
-- ✅ **Gestión de Productos**: 100% completo
-- ✅ **Gestión de Proveedores**: 100% completo
-- ✅ **Sistema de Pagos a Proveedores**: 100% completo
-- ✅ **Helper de Moneda MXN**: 100% completo
-- 🔄 **Integración PEPS**: En desarrollo
-- 🔄 **Módulo de Ventas**: Planificado
-
----
+### 📧 Contacto
+- **Desarrollador**: [Tu Nombre]
+- **Email**: tu-email@ejemplo.com
+- **GitHub**: [tu-usuario](https://github.com/tu-usuario)
 
 ## 📄 Licencia
 
-Este proyecto está bajo la licencia MIT. Ver el archivo `LICENSE` para más detalles.
-
-## 👨‍💻 Desarrollado con
-
-- **Laravel 11** - Framework PHP moderno y robusto
-- **Filament 3** - Panel administrativo elegante y funcional
-- **Chart.js** - Gráficos interactivos y responsivos
-- **Tailwind CSS** - Diseño moderno y responsive
-- **Livewire** - Componentes reactivos sin JavaScript
-- **SQLite** - Base de datos ligera y eficiente
-- **Observer Pattern** - Actualización automática de datos
-
-## 🎯 Características Técnicas Avanzadas
-
-### 🤖 Sistema de Metas Inteligentes
-- **Cálculo Automático**: Algoritmo avanzado para establecer metas realistas
-- **Análisis Trimestral**: Promedio de pagos de los últimos 3 meses
-- **Factor de Saldos Pendientes**: Ajuste basado en obligaciones pendientes
-- **Estacionalidad**: Considera patrones de negocio por época del año
-- **Tendencia de Mejora**: Incremento gradual del 5% para crecimiento sostenible
-
-### 🔐 Seguridad y Validación
-- **Validación de Créditos**: Límites automáticos por cliente
-- **Estados de Cuenta**: Trazabilidad completa de movimientos
-- **Control de Acceso**: Sistema de roles granular
-- **Observers**: Actualizaciones automáticas de saldos
-
-### ⚡ Rendimiento
-- **Polling Inteligente**: Actualización cada 10-30 segundos
-- **Caché de Componentes**: Optimización de widgets
-- **Consultas Optimizadas**: Relaciones Eloquent eficientes
-- **Formato Lazy**: Carga diferida de datos pesados
-
-### 🎨 Experiencia de Usuario
-- **Dashboard Intuitivo**: Métricas visuales claras
-- **Responsive Design**: Adaptable a todos los dispositivos
-- **Feedback Visual**: Estados con colores semánticos
-- **Navegación Fluida**: Interfaz coherente y moderna
+Este proyecto está licenciado bajo la Licencia MIT. Consulta el archivo `LICENSE` para más detalles.
 
 ---
 
-**🍎 Frutiflow** - *Sistema profesional de gestión de inventario de frutas con control de créditos y tecnología de vanguardia*
+*Desarrollado con ❤️ para la gestión eficiente de inventarios de frutas en México*
