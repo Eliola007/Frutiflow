@@ -16,4 +16,19 @@ class ListClientes extends ListRecords
             Actions\CreateAction::make(),
         ];
     }
+    
+    protected function getHeaderWidgets(): array
+    {
+        return [
+            ClienteResource\Widgets\EstadisticasCreditoWidget::class,
+        ];
+    }
+    
+    protected function getFooterWidgets(): array
+    {
+        return [
+            ClienteResource\Widgets\ClientesMayorDeudaWidget::class,
+            ClienteResource\Widgets\PagosVencidosWidget::class,
+        ];
+    }
 }
