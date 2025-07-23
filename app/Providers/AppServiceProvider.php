@@ -21,6 +21,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        PagoCliente::observe(PagoClienteObserver::class);
+        // Registrar observers
+        \App\Models\PagoCliente::observe(\App\Observers\PagoClienteObserver::class);
+        \App\Models\PagoProveedor::observe(\App\Observers\PagoProveedorObserver::class);
     }
 }

@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -15,16 +14,20 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             RoleSeeder::class,
-            ProductoSeeder::class,
+            UserSeeder::class, // Crear usuarios primero
         ]);
 
-        // Crear usuario administrador con rol
-        User::create([
-            'name' => 'Administrador',
-            'email' => 'admin@frutiflow.com',
-            'password' => bcrypt('password123'),
-            'role_id' => 1, // Rol de Administrador
-            'activo' => true,
+        // Ejecutar seeders que NO requieren usuario
+        $this->call([
+            ProductoSeeder::class,
+            ClienteSeeder::class,
+            ProveedorSeeder::class,
+        ]);
+
+        // Ejecutar seeders que requieren datos existentes (usuario y entidades)
+        $this->call([
+            PagoClienteSeeder::class,
+            PagoProveedorSeeder::class,
         ]);
     }
 }

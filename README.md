@@ -1,4 +1,15 @@
-# 🍎 Frutiflow - Sistema de Gestión de Inventario de Frutas
+# 🍎## ✨ Características Principales
+
+- **🔄 Gestión de Inventario PEPS**: Control automático de stock con lógica "Primero en Entrar, Primero en Salir"
+- **� Control de Créditos Integral**: Sistema completo de gestión crediticia con límites, pagos y morosidad
+- **�📊 Dashboard con Widgets**: Múltiples widgets interactivos con métricas en tiempo real
+- **🤖 Metas Inteligentes**: Cálculo automático de objetivos basado en datos históricos y tendencias
+- **💰 Soporte para Pesos Mexicanos**: Formato de moneda MXN con locale mexicano
+- **⏰ Control de Vencimientos**: Seguimiento de fechas de vencimiento y alertas
+- **🏢 Gestión Completa**: Clientes, proveedores, productos, compras, ventas y gastos
+- **👥 Sistema de Roles**: Control de acceso granular por rol de usuario
+- **🎨 Panel Administrativo**: Interfaz moderna con Filament 3
+- **📈 Reportes Visuales**: Análisis gráfico de ventas, stock, créditos y cobranza- Sistema de Gestión de Inventario de Frutas
 
 Sistema completo de gestión de inventario de frutas desarrollado con Laravel 11 y Filament 3, implementando la lógica PEPS (Primero en Entrar, Primero en Salir) para el control de stock, con sistema integral de control de créditos y dashboard con gráficos en tiempo real.
 
@@ -78,6 +89,48 @@ Sistema completo de gestión de inventario de frutas desarrollado con Laravel 11
    - Formato de moneda en tooltips
    - Actualización automática cada 30s
 
+### 🏢 Módulo de Proveedores
+1. **EstadisticasProveedoresWidget** - Métricas Generales
+   - Total de proveedores activos
+   - Límites de crédito promedio
+   - Proveedores con saldo pendiente
+   - Estado del crédito por proveedor
+
+2. **ProveedoresMayorDeudaWidget** - Control de Deudas
+   - Top proveedores con mayor saldo pendiente
+   - Información de contacto y documentos
+   - Estado de crédito con indicadores visuales
+   - Formato de moneda mexicana
+
+3. **EvolucionPagosChart** - Análisis Temporal Inteligente
+   - Evolución de pagos a proveedores (6 meses)
+   - **🤖 Sistema de Metas Automáticas**: Cálculo inteligente basado en:
+     - Promedio trimestral de pagos históricos
+     - Saldos pendientes por proveedor
+     - Factores estacionales del negocio
+     - Tendencias de mejora y crecimiento
+   - Comparación automática: pagos realizados vs metas inteligentes
+   - Gráfico de líneas con formato MXN
+   - Seguimiento predictivo de flujo de caja
+
+## 🏢 Gestión de Proveedores y Pagos
+
+### 📋 Sistema de Proveedores
+- **Gestión Completa**: CRUD de proveedores con validaciones
+- **Control de Crédito**: Límites crediticios y días de pago
+- **RFC**: Campo único de 13 caracteres alfanuméricos (formato mexicano)
+- **Estados**: Activo/Inactivo con control de acceso
+- **Información de Contacto**: Teléfono, email, dirección
+- **Descuentos Especiales**: Porcentajes personalizados
+
+### 💳 Gestión de Pagos a Proveedores
+- **Tipos de Pago**: Pago, anticipo, abono
+- **Métodos de Pago**: Efectivo, transferencia, cheque, tarjeta
+- **Trazabilidad Completa**: Usuario, fecha, referencia
+- **Control de Saldos**: Actualización automática en tiempo real
+- **Historial Detallado**: Registro de todos los movimientos
+- **Formato de Moneda**: Pesos mexicanos (MXN)
+
 ## 💳 Gestión de Créditos y Control Financiero
 
 ### �️ Sistema de Créditos Integral
@@ -107,6 +160,8 @@ Sistema completo de gestión de inventario de frutas desarrollado con Laravel 11
 - **`/admin/productos`** - Dashboard de productos con widgets
 - **`/admin/clientes`** - Dashboard de créditos y cobranza
 - **`/admin/pago-clientes`** - Dashboard de evolución de pagos
+- **`/admin/proveedors`** - Gestión de proveedores y créditos
+- **`/admin/pagos-proveedors`** - Dashboard de pagos a proveedores
 - **Diseño responsivo** - Se adapta a móviles y escritorio
 - **Actualización en tiempo real** - Polling automático de datos
 
@@ -117,7 +172,7 @@ Sistema completo de gestión de inventario de frutas desarrollado con Laravel 11
 ```
 User (Usuario)
 ├── belongsTo: Role
-├── hasMany: Compra, Venta, Gasto, PagoCliente
+├── hasMany: Compra, Venta, Gasto, PagoCliente, PagoProveedor
 
 Role (Rol)
 ├── hasMany: User
@@ -134,7 +189,15 @@ PagoCliente
 ├── observer: PagoClienteObserver (actualiza saldos automáticamente)
 
 Proveedor
-├── hasMany: Compra
+├── hasMany: Compra, PagoProveedor
+├── attributes: rfc, limite_credito, dias_credito, saldo_pendiente, estado_credito
+├── methods: descuento_especial, contacto_principal, ultima_compra, validarRFC()
+
+PagoProveedor
+├── belongsTo: Proveedor, User
+├── types: pago, anticipo, abono
+├── methods: efectivo, transferencia, cheque, tarjeta
+├── observer: PagoProveedorObserver (actualiza saldos automáticamente)
 
 Producto
 ├── hasMany: Compra, Venta, Inventario
@@ -161,6 +224,8 @@ app/
 │   ├── ProductoResource.php
 │   ├── ClienteResource.php
 │   ├── PagoClienteResource.php
+│   ├── ProveedorResource.php
+│   ├── PagosProveedorResource.php
 │   ├── ProductoResource/Widgets/
 │   │   ├── ProductosOverviewWidget.php
 │   │   ├── ProductosStockChart.php
@@ -170,17 +235,24 @@ app/
 │   │   ├── EstadisticasCreditoWidget.php
 │   │   ├── ClientesMayorDeudaWidget.php
 │   │   └── PagosVencidosWidget.php
-│   └── PagoClienteResource/Widgets/
+│   ├── PagoClienteResource/Widgets/
+│   │   └── EvolucionPagosChart.php
+│   ├── ProveedorResource/Widgets/
+│   │   ├── EstadisticasProveedoresWidget.php
+│   │   └── ProveedoresMayorDeudaWidget.php
+│   └── PagosProveedorResource/Widgets/
 │       └── EvolucionPagosChart.php
 ├── Helpers/
 │   └── CurrencyHelper.php
 ├── Observers/
-│   └── PagoClienteObserver.php
+│   ├── PagoClienteObserver.php
+│   └── PagoProveedorObserver.php
 └── Models/
     ├── Producto.php (con accessors de formato MXN)
     ├── Cliente.php (con sistema de créditos)
     ├── PagoCliente.php (con trazabilidad)
-    ├── Proveedor.php
+    ├── Proveedor.php (con sistema de créditos)
+    ├── PagoProveedor.php (con trazabilidad)
     ├── Compra.php
     ├── Venta.php
     ├── Inventario.php
@@ -264,8 +336,11 @@ php artisan serve
 ### 🌐 URLs Principales
 - **Login**: `http://localhost:8000/admin/login`
 - **Productos**: `http://localhost:8000/admin/productos`
+- **Clientes**: `http://localhost:8000/admin/clientes`
+- **Pagos Clientes**: `http://localhost:8000/admin/pago-clientes`
+- **Proveedores**: `http://localhost:8000/admin/proveedors`
+- **Pagos Proveedores**: `http://localhost:8000/admin/pagos-proveedors`
 - **Dashboard**: `http://localhost:8000/admin/productos/dashboard`
-- **Crear Producto**: `http://localhost:8000/admin/productos/create`
 
 ## 💰 Sistema de Moneda Mexicana
 
@@ -461,6 +536,7 @@ git log --oneline
 - [x] **Sistema de Créditos Completo** - Control de límites, pagos y morosidad
 - [x] **Dashboard con Widgets** - Métricas visuales en tiempo real  
 - [x] **Gestión de Productos** - CRUD completo con formato MXN
+- [x] **Gestión de Proveedores** - Control de créditos y pagos a proveedores
 - [ ] **Módulo de Compras** - Integración PEPS con proveedores
 - [ ] **Módulo de Ventas** - Consumo automático de inventario
 - [ ] **Alertas de Vencimiento** - Notificaciones por email
@@ -470,9 +546,11 @@ git log --oneline
 
 ### 📊 Estado Actual del Proyecto
 - ✅ **Gestión de Clientes con Créditos**: 100% completo
-- ✅ **Sistema de Pagos**: 100% completo  
+- ✅ **Sistema de Pagos a Clientes**: 100% completo  
 - ✅ **Widgets de Dashboard**: 100% completo
 - ✅ **Gestión de Productos**: 100% completo
+- ✅ **Gestión de Proveedores**: 100% completo
+- ✅ **Sistema de Pagos a Proveedores**: 100% completo
 - ✅ **Helper de Moneda MXN**: 100% completo
 - 🔄 **Integración PEPS**: En desarrollo
 - 🔄 **Módulo de Ventas**: Planificado
@@ -494,6 +572,13 @@ Este proyecto está bajo la licencia MIT. Ver el archivo `LICENSE` para más det
 - **Observer Pattern** - Actualización automática de datos
 
 ## 🎯 Características Técnicas Avanzadas
+
+### 🤖 Sistema de Metas Inteligentes
+- **Cálculo Automático**: Algoritmo avanzado para establecer metas realistas
+- **Análisis Trimestral**: Promedio de pagos de los últimos 3 meses
+- **Factor de Saldos Pendientes**: Ajuste basado en obligaciones pendientes
+- **Estacionalidad**: Considera patrones de negocio por época del año
+- **Tendencia de Mejora**: Incremento gradual del 5% para crecimiento sostenible
 
 ### 🔐 Seguridad y Validación
 - **Validación de Créditos**: Límites automáticos por cliente

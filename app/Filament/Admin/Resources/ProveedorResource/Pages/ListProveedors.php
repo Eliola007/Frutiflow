@@ -16,4 +16,18 @@ class ListProveedors extends ListRecords
             Actions\CreateAction::make(),
         ];
     }
+    
+    protected function getHeaderWidgets(): array
+    {
+        return [
+            ProveedorResource\Widgets\EstadisticasProveedoresWidget::class,
+        ];
+    }
+    
+    protected function getFooterWidgets(): array
+    {
+        return [
+            ProveedorResource\Widgets\ProveedoresMayorDeudaWidget::class,
+        ];
+    }
 }
