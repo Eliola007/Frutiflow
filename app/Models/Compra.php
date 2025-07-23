@@ -14,17 +14,10 @@ class Compra extends Model
         'proveedor_id',
         'user_id',
         'fecha_compra',
-        'fecha_vencimiento',
-        'producto_id',
-        'cantidad',
-        'precio_unitario',
-        'descuento',
-        'impuestos',
         'total',
         'tipo_pago',
         'monto_enganche',
         'fecha_limite_pago',
-        'lote',
         'estado',
         'observaciones',
         'notas'
@@ -32,12 +25,7 @@ class Compra extends Model
 
     protected $casts = [
         'fecha_compra' => 'date',
-        'fecha_vencimiento' => 'date',
         'fecha_limite_pago' => 'date',
-        'cantidad' => 'decimal:2',
-        'precio_unitario' => 'decimal:2',
-        'descuento' => 'decimal:2',
-        'impuestos' => 'decimal:2',
         'total' => 'decimal:2',
         'monto_enganche' => 'decimal:2'
     ];
@@ -52,9 +40,9 @@ class Compra extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function producto(): BelongsTo
+    public function items(): HasMany
     {
-        return $this->belongsTo(Producto::class);
+        return $this->hasMany(CompraItem::class);
     }
 
     public function inventarios(): HasMany
@@ -69,28 +57,31 @@ class Compra extends Model
             return;
         }
 
-        // Generar lote si no existe
-        if (!$this->lote) {
-            $this->lote = $this->generarLote();
-            $this->save();
+        // Procesar cada item de la compra
+        foreach ($this->items as $item) {
+            // Generar lote si no existe
+            if (!$item->lote) {
+                $item->lote = $this->generarLote();
+                $item->save();
+            }
+
+            // Crear registro en inventario
+            Inventario::create([
+                'producto_id' => $item->producto_id,
+                'compra_id' => $this->id,
+                'lote' => $item->lote,
+                'fecha_ingreso' => $this->fecha_compra,
+                'cantidad_inicial' => $item->cantidad,
+                'cantidad_actual' => $item->cantidad,
+                'precio_costo' => $item->precio_unitario,
+                'estado' => 'disponible'
+            ]);
+
+            // Actualizar stock del producto
+            $producto = $item->producto;
+            $producto->stock_actual += $item->cantidad;
+            $producto->save();
         }
-
-        // Crear registro en inventario
-        Inventario::create([
-            'producto_id' => $this->producto_id,
-            'compra_id' => $this->id,
-            'lote' => $this->lote,
-            'fecha_ingreso' => $this->fecha_compra,
-            'cantidad_inicial' => $this->cantidad,
-            'cantidad_actual' => $this->cantidad,
-            'precio_costo' => $this->precio_unitario,
-            'estado' => 'disponible'
-        ]);
-
-        // Actualizar stock del producto
-        $producto = $this->producto;
-        $producto->stock_actual += $this->cantidad;
-        $producto->save();
 
         // Si es crédito con enganche, crear el pago del enganche
         if ($this->tipo_pago === 'credito_enganche' && $this->monto_enganche > 0) {
@@ -143,12 +134,13 @@ class Compra extends Model
     }
 
     // Método para calcular diferencia de precio con promedio
-    public function diferenciaPrecioPromedio(): array
+    public function diferenciaPrecioPromedio($productoId, $precioUnitario): array
     {
-        $promedioCompras = static::where('producto_id', $this->producto_id)
-            ->where('estado', 'recibida')
-            ->where('id', '!=', $this->id)
-            ->avg('precio_unitario');
+        $promedioCompras = static::join('compra_items', 'compras.id', '=', 'compra_items.compra_id')
+            ->where('compra_items.producto_id', $productoId)
+            ->where('compras.estado', 'recibida')
+            ->where('compras.id', '!=', $this->id)
+            ->avg('compra_items.precio_unitario');
 
         if (!$promedioCompras) {
             return [
@@ -159,7 +151,7 @@ class Compra extends Model
             ];
         }
 
-        $diferencia = $this->precio_unitario - $promedioCompras;
+        $diferencia = $precioUnitario - $promedioCompras;
         $porcentaje = ($diferencia / $promedioCompras) * 100;
 
         return [

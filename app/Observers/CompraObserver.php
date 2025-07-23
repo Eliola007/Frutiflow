@@ -12,23 +12,26 @@ class CompraObserver
      */
     public function created(Compra $compra): void
     {
-        // Verificar diferencia de precio con promedio
-        $diferencia = $compra->diferenciaPrecioPromedio();
-        
-        if ($diferencia['tiene_diferencia']) {
-            $mensaje = sprintf(
-                'El precio de compra ($%s) difiere un %.1f%% del promedio histórico ($%s)',
-                number_format($compra->precio_unitario, 2),
-                $diferencia['porcentaje'],
-                number_format($diferencia['promedio'], 2)
-            );
+        // Verificar diferencia de precio con promedio para cada item
+        foreach ($compra->items as $item) {
+            $diferencia = $compra->diferenciaPrecioPromedio($item->producto_id, $item->precio_unitario);
             
-            Notification::make()
-                ->warning()
-                ->title('Diferencia de Precio Significativa')
-                ->body($mensaje)
-                ->persistent()
-                ->send();
+            if ($diferencia['tiene_diferencia']) {
+                $mensaje = sprintf(
+                    'El precio de compra del producto %s ($%s) difiere un %.1f%% del promedio histórico ($%s)',
+                    $item->producto->nombre,
+                    number_format($item->precio_unitario, 2),
+                    $diferencia['porcentaje'],
+                    number_format($diferencia['promedio'], 2)
+                );
+                
+                Notification::make()
+                    ->warning()
+                    ->title('Diferencia de Precio Significativa')
+                    ->body($mensaje)
+                    ->persistent()
+                    ->send();
+            }
         }
     }
 
@@ -55,11 +58,13 @@ class CompraObserver
             // Eliminar registros de inventario relacionados
             $compra->inventarios()->delete();
             
-            // Revertir stock del producto
-            $producto = $compra->producto;
-            if ($producto) {
-                $producto->stock_actual -= $compra->cantidad;
-                $producto->save();
+            // Revertir stock de cada producto
+            foreach ($compra->items as $item) {
+                $producto = $item->producto;
+                if ($producto) {
+                    $producto->stock_actual -= $item->cantidad;
+                    $producto->save();
+                }
             }
         }
     }

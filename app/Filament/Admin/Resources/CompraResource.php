@@ -4,6 +4,7 @@ namespace App\Filament\Admin\Resources;
 
 use App\Filament\Admin\Resources\CompraResource\Pages;
 use App\Models\Compra;
+use App\Models\CompraItem;
 use App\Models\Proveedor;
 use App\Models\Producto;
 use App\Helpers\CurrencyHelper;
@@ -49,16 +50,12 @@ class CompraResource extends Resource
             ->schema([
                 Section::make('Información General')
                     ->schema([
-                        Grid::make(3)
+                        Grid::make(2)
                             ->schema([
                                 TextInput::make('numero_factura')
-                                    ->label('Número de Factura')
+                                    ->label('Factura / Remisión')
                                     ->required()
                                     ->unique(ignoreRecord: true)
-                                    ->maxLength(100),
-                                    
-                                TextInput::make('numero_remision')
-                                    ->label('Número de Remisión')
                                     ->maxLength(100),
                                     
                                 DatePicker::make('fecha_compra')
@@ -118,89 +115,124 @@ class CompraResource extends Resource
                     ])
                     ->visible(fn (Get $get): bool => in_array($get('tipo_pago'), ['credito', 'credito_enganche'])),
                     
-                Section::make('Producto')
+                Section::make('Productos')
                     ->schema([
-                        Grid::make(3)
+                        Repeater::make('items')
+                            ->label('Items de Compra')
+                            ->relationship()
+                            ->required()
+                            ->minItems(1)
+                            ->defaultItems(1)
                             ->schema([
-                                Select::make('producto_id')
-                                    ->label('Producto')
-                                    ->relationship('producto', 'nombre')
-                                    ->required()
-                                    ->searchable()
-                                    ->preload()
-                                    ->live()
-                                    ->afterStateUpdated(function (Set $set, Get $get, $state) {
-                                        if ($state) {
-                                            $producto = Producto::find($state);
-                                            if ($producto) {
-                                                $set('precio_unitario', $producto->precio_compra ?? 0);
-                                            }
-                                        }
-                                        self::updateTotal($set, $get);
-                                    }),
+                                Grid::make(6)
+                                    ->schema([
+                                        Select::make('producto_id')
+                                            ->label('Producto')
+                                            ->relationship('producto', 'nombre')
+                                            ->required()
+                                            ->searchable()
+                                            ->preload()
+                                            ->live()
+                                            ->columnSpan(2)
+                                            ->afterStateUpdated(function (Set $set, Get $get, $state) {
+                                                if ($state) {
+                                                    $producto = Producto::find($state);
+                                                    if ($producto) {
+                                                        $set('precio_unitario', $producto->precio_compra ?? 0);
+                                                    }
+                                                }
+                                                self::updateItemSubtotal($set, $get);
+                                            }),
+                                            
+                                        TextInput::make('cantidad')
+                                            ->label('Cantidad')
+                                            ->required()
+                                            ->numeric()
+                                            ->step(0.01)
+                                            ->minValue(0.01)
+                                            ->columnSpan(1)
+                                            ->live(debounce: 500)
+                                            ->afterStateUpdated(function (Set $set, Get $get) {
+                                                self::updateItemSubtotal($set, $get);
+                                            }),
+                                            
+                                        TextInput::make('precio_unitario')
+                                            ->label('Precio Unit.')
+                                            ->required()
+                                            ->numeric()
+                                            ->step(0.01)
+                                            ->minValue(0)
+                                            ->prefix('$')
+                                            ->columnSpan(1)
+                                            ->live(debounce: 500)
+                                            ->afterStateUpdated(function (Set $set, Get $get) {
+                                                self::updateItemSubtotal($set, $get);
+                                            }),
+                                            
+                                        TextInput::make('descuento')
+                                            ->label('Descuento')
+                                            ->numeric()
+                                            ->step(0.01)
+                                            ->minValue(0)
+                                            ->prefix('$')
+                                            ->default(0)
+                                            ->columnSpan(1)
+                                            ->live(debounce: 500)
+                                            ->afterStateUpdated(function (Set $set, Get $get) {
+                                                self::updateItemSubtotal($set, $get);
+                                            }),
+                                            
+                                        TextInput::make('subtotal')
+                                            ->label('Subtotal')
+                                            ->numeric()
+                                            ->prefix('$')
+                                            ->readOnly()
+                                            ->columnSpan(1)
+                                            ->formatStateUsing(fn ($state) => CurrencyHelper::format($state ?? 0)),
+                                    ]),
                                     
-                                TextInput::make('cantidad')
-                                    ->label('Cantidad')
-                                    ->required()
-                                    ->numeric()
-                                    ->step(0.01)
-                                    ->minValue(0.01)
-                                    ->live(debounce: 500)
-                                    ->afterStateUpdated(function (Set $set, Get $get) {
-                                        self::updateTotal($set, $get);
-                                    }),
-                                    
-                                TextInput::make('precio_unitario')
-                                    ->label('Precio Unitario')
-                                    ->required()
-                                    ->numeric()
-                                    ->prefix('$')
-                                    ->step(0.01)
-                                    ->minValue(0)
-                                    ->live(debounce: 500)
-                                    ->afterStateUpdated(function (Set $set, Get $get) {
-                                        self::updateTotal($set, $get);
-                                    }),
-                            ]),
-                            
-                        Grid::make(4)
-                            ->schema([
-                                TextInput::make('descuento')
-                                    ->label('Descuento')
-                                    ->numeric()
-                                    ->prefix('$')
-                                    ->step(0.01)
-                                    ->default(0)
-                                    ->minValue(0)
-                                    ->live(debounce: 500)
-                                    ->afterStateUpdated(function (Set $set, Get $get) {
-                                        self::updateTotal($set, $get);
-                                    }),
-                                    
-                                TextInput::make('impuestos')
-                                    ->label('Impuestos')
-                                    ->numeric()
-                                    ->prefix('$')
-                                    ->step(0.01)
-                                    ->default(0)
-                                    ->minValue(0)
-                                    ->live(debounce: 500)
-                                    ->afterStateUpdated(function (Set $set, Get $get) {
-                                        self::updateTotal($set, $get);
-                                    }),
-                                    
-                                TextInput::make('lote')
-                                    ->label('Lote')
-                                    ->placeholder('Se genera automáticamente')
-                                    ->maxLength(50),
-                                    
-                                TextInput::make('total')
-                                    ->label('Total')
-                                    ->numeric()
-                                    ->prefix('$')
-                                    ->disabled()
-                                    ->dehydrated(),
-                            ]),
+                                Grid::make(2)
+                                    ->schema([
+                                        TextInput::make('lote')
+                                            ->label('Lote')
+                                            ->maxLength(50)
+                                            ->placeholder('Se genera automáticamente')
+                                            ->columnSpan(1),
+                                            
+                                        DatePicker::make('fecha_vencimiento')
+                                            ->label('Fecha de Vencimiento')
+                                            ->native(false)
+                                            ->columnSpan(1),
+                                    ]),
+                            ])
+                            ->addActionLabel('Agregar Producto')
+                            ->reorderableWithButtons()
+                            ->collapsible()
+                            ->itemLabel(fn (array $state): ?string => 
+                                $state['producto_id'] ? 
+                                    Producto::find($state['producto_id'])?->nombre . ' - ' . CurrencyHelper::format($state['subtotal'] ?? 0) 
+                                    : 'Nuevo Producto'
+                            )
+                            ->live()
+                            ->afterStateUpdated(function (Set $set, Get $get) {
+                                self::updateGrandTotal($set, $get);
+                            })
+                            ->deleteAction(
+                                fn (Action $action) => $action->requiresConfirmation()->after(function (Set $set, Get $get) {
+                                    self::updateGrandTotal($set, $get);
+                                })
+                            ),
+                    ]),
+                    
+                Section::make('Total')
+                    ->schema([
+                        TextInput::make('total')
+                            ->label('Total General')
+                            ->numeric()
+                            ->prefix('$')
+                            ->disabled()
+                            ->dehydrated()
+                            ->formatStateUsing(fn ($state) => CurrencyHelper::format($state ?? 0)),
                     ]),
                     
                 Section::make('Observaciones')
@@ -222,15 +254,25 @@ class CompraResource extends Resource
             ]);
     }
     
-    protected static function updateTotal(Set $set, Get $get): void
+    protected static function updateItemSubtotal(Set $set, Get $get): void
     {
         $cantidad = (float) ($get('cantidad') ?? 0);
         $precio = (float) ($get('precio_unitario') ?? 0);
         $descuento = (float) ($get('descuento') ?? 0);
-        $impuestos = (float) ($get('impuestos') ?? 0);
         
-        $subtotal = $cantidad * $precio;
-        $total = $subtotal - $descuento + $impuestos;
+        $subtotal = ($cantidad * $precio) - $descuento;
+        
+        $set('subtotal', number_format($subtotal, 2, '.', ''));
+    }
+    
+    protected static function updateGrandTotal(Set $set, Get $get): void
+    {
+        $items = $get('items') ?? [];
+        $total = 0;
+        
+        foreach ($items as $item) {
+            $total += (float) ($item['subtotal'] ?? 0);
+        }
         
         $set('total', number_format($total, 2, '.', ''));
     }
@@ -250,20 +292,22 @@ class CompraResource extends Resource
                     ->searchable()
                     ->sortable(),
                     
-                TextColumn::make('producto.nombre')
-                    ->label('Producto')
-                    ->searchable()
-                    ->limit(30),
+                TextColumn::make('items_count')
+                    ->label('# Items')
+                    ->counts('items')
+                    ->alignCenter(),
                     
-                TextColumn::make('cantidad')
-                    ->label('Cantidad')
-                    ->numeric(decimalPlaces: 2)
-                    ->alignEnd(),
-                    
-                TextColumn::make('precio_unitario')
-                    ->label('Precio Unit.')
-                    ->money(CurrencyHelper::getCurrency(), locale: CurrencyHelper::getLocale())
-                    ->sortable(),
+                TextColumn::make('items')
+                    ->label('Productos')
+                    ->formatStateUsing(function ($record) {
+                        $productos = $record->items->pluck('producto.nombre')->take(3);
+                        $texto = $productos->join(', ');
+                        if ($record->items->count() > 3) {
+                            $texto .= ' +' . ($record->items->count() - 3) . ' más';
+                        }
+                        return $texto;
+                    })
+                    ->limit(50),
                     
                 TextColumn::make('total')
                     ->label('Total')
@@ -302,8 +346,8 @@ class CompraResource extends Resource
                         default => $state,
                     }),
                     
-                TextColumn::make('lote')
-                    ->label('Lote')
+                TextColumn::make('items.0.lote')
+                    ->label('Lote (1er Item)')
                     ->toggleable()
                     ->searchable(),
                     
@@ -332,10 +376,6 @@ class CompraResource extends Resource
                 SelectFilter::make('proveedor_id')
                     ->label('Proveedor')
                     ->relationship('proveedor', 'nombre'),
-                    
-                SelectFilter::make('producto_id')
-                    ->label('Producto')
-                    ->relationship('producto', 'nombre'),
                     
                 SelectFilter::make('tipo_pago')
                     ->label('Tipo de Pago')
