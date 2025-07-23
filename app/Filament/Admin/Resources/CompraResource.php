@@ -17,7 +17,13 @@ class CompraResource extends Resource
 {
     protected static ?string $model = Compra::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-shopping-cart';
+    
+    protected static ?string $navigationLabel = 'Compras';
+    
+    protected static ?string $navigationGroup = 'Movimientos';
+    
+    protected static ?int $navigationSort = 1;
 
     public static function form(Form $form): Form
     {

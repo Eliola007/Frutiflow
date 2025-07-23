@@ -35,7 +35,7 @@ class ProveedorResource extends Resource
     
     protected static ?string $pluralModelLabel = 'Proveedores';
     
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 1;
     
     protected static ?string $navigationGroup = 'Gestión de Proveedores';
 

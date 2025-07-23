@@ -34,6 +34,8 @@ class PagosProveedorResource extends Resource
     
     protected static ?string $navigationGroup = 'Gestión de Proveedores';
     
+    protected static ?int $navigationSort = 2;
+    
     protected static ?string $modelLabel = 'Pago a Proveedor';
     
     protected static ?string $pluralModelLabel = 'Pagos a Proveedores';

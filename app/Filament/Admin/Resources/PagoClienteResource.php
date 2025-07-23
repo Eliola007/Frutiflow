@@ -33,11 +33,13 @@ class PagoClienteResource extends Resource
     
     protected static ?string $navigationLabel = 'Pagos de Clientes';
     
+    protected static ?string $navigationGroup = 'Gestión de Clientes';
+    
     protected static ?string $modelLabel = 'Pago';
     
     protected static ?string $pluralModelLabel = 'Pagos de Clientes';
     
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 2;
 
     public static function form(Form $form): Form
     {

@@ -31,11 +31,13 @@ class ClienteResource extends Resource
     
     protected static ?string $navigationLabel = 'Clientes';
     
+    protected static ?string $navigationGroup = 'Gestión de Clientes';
+    
     protected static ?string $modelLabel = 'Cliente';
     
     protected static ?string $pluralModelLabel = 'Clientes';
     
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 1;
 
     public static function form(Form $form): Form
     {
