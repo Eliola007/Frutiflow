@@ -123,4 +123,23 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Business Information
+    |--------------------------------------------------------------------------
+    |
+    | Information about the business that will appear on tickets and receipts.
+    | These values can be overridden in the .env file.
+    |
+    */
+
+    'business_name' => env('BUSINESS_NAME', 'FRUTIFLOW'),
+    'business_slogan' => env('BUSINESS_SLOGAN', 'Frutas Frescas y de Calidad'),
+    'business_address' => env('BUSINESS_ADDRESS', 'Av. Principal #123, Centro'),
+    'business_city' => env('BUSINESS_CITY', 'Ciudad, Estado CP 12345'),
+    'business_phone' => env('BUSINESS_PHONE', '(555) 123-4567'),
+    'business_email' => env('BUSINESS_EMAIL', 'ventas@frutiflow.com'),
+    'business_website' => env('BUSINESS_WEBSITE', 'www.frutiflow.com'),
+    'business_tax_id' => env('BUSINESS_TAX_ID', 'RFC: XXXX000000XXX'),
+
 ];

@@ -589,13 +589,23 @@ class VentaResource extends Resource
                     Tables\Actions\EditAction::make()
                         ->color('warning'),
                     Tables\Actions\Action::make('print_ticket')
-                        ->label('🖨️ Imprimir Ticket')
+                        ->label('🖨️ Previsualizar Ticket')
                         ->icon('heroicon-o-printer')
                         ->color('success')
-                        ->action(function ($record) {
-                            // TODO: Implementar impresión de ticket
-                            // return redirect()->route('ventas.ticket', $record);
-                        }),
+                        ->url(fn ($record) => route('ticket.venta.preview', $record))
+                        ->openUrlInNewTab(),
+                    Tables\Actions\Action::make('print_normal')
+                        ->label('📄 Ticket Normal')
+                        ->icon('heroicon-o-document-text')
+                        ->color('primary')
+                        ->url(fn ($record) => route('ticket.venta', $record))
+                        ->openUrlInNewTab(),
+                    Tables\Actions\Action::make('print_compact')
+                        ->label('📱 Ticket Compacto')
+                        ->icon('heroicon-o-device-phone-mobile')
+                        ->color('secondary')
+                        ->url(fn ($record) => route('ticket.venta.compacto', $record))
+                        ->openUrlInNewTab(),
                     Tables\Actions\Action::make('process')
                         ->label('✅ Procesar Venta')
                         ->icon('heroicon-o-check-circle')

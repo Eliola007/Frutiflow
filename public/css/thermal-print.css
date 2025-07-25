@@ -1,0 +1,255 @@
+/* 
+ * Estilos específicos para impresoras térmicas de 58mm y 80mm
+ * Frutiflow - Sistema de Gestión de Inventario
+ */
+
+/* Configuración base para impresoras térmicas */
+@media print {
+    body {
+        font-family: 'Courier New', 'Lucida Console', monospace;
+        font-size: 11px;
+        line-height: 1.2;
+        margin: 0;
+        padding: 0;
+        color: #000;
+        background: #fff;
+    }
+
+    /* Ocultar elementos no necesarios */
+    .no-print,
+    .actions,
+    .preview-only {
+        display: none !important;
+    }
+
+    /* Configuración de página */
+    @page {
+        margin: 2mm;
+        size: 80mm auto; /* Ancho de 80mm, altura automática */
+    }
+
+    /* Para impresoras de 58mm */
+    @page :first {
+        size: 58mm auto;
+    }
+
+    .ticket {
+        max-width: 100%;
+        margin: 0;
+        padding: 0;
+        border: none;
+        box-shadow: none;
+    }
+
+    /* Header optimizado */
+    .header {
+        text-align: center;
+        border-bottom: 1px dashed #000;
+        padding-bottom: 3mm;
+        margin-bottom: 3mm;
+    }
+
+    .business-name {
+        font-size: 14px;
+        font-weight: bold;
+        margin-bottom: 1mm;
+        letter-spacing: 1px;
+    }
+
+    .business-info {
+        font-size: 9px;
+        margin-bottom: 0.5mm;
+    }
+
+    /* Información de venta */
+    .sale-info {
+        margin-bottom: 3mm;
+        font-size: 10px;
+    }
+
+    .sale-info .row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1mm;
+    }
+
+    /* Tabla de productos optimizada */
+    .items-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 3mm;
+        font-size: 9px;
+    }
+
+    .items-table th {
+        border-bottom: 1px solid #000;
+        padding: 1mm 0.5mm;
+        font-weight: bold;
+        text-align: left;
+    }
+
+    .items-table td {
+        padding: 0.5mm;
+        vertical-align: top;
+    }
+
+    .items-table .item-name {
+        width: 45%;
+        word-wrap: break-word;
+    }
+
+    .items-table .item-qty {
+        width: 15%;
+        text-align: center;
+    }
+
+    .items-table .item-price,
+    .items-table .item-total {
+        width: 20%;
+        text-align: right;
+    }
+
+    /* Totales */
+    .totals {
+        border-top: 1px dashed #000;
+        padding-top: 2mm;
+        margin-bottom: 3mm;
+        font-size: 10px;
+    }
+
+    .total-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1mm;
+    }
+
+    .total-row.final {
+        font-weight: bold;
+        font-size: 12px;
+        border-top: 1px solid #000;
+        padding-top: 1mm;
+        margin-top: 2mm;
+    }
+
+    /* Footer */
+    .footer {
+        text-align: center;
+        border-top: 1px dashed #000;
+        padding-top: 2mm;
+        font-size: 8px;
+    }
+
+    /* Evitar saltos de página indeseados */
+    .ticket,
+    .header,
+    .sale-info,
+    .items-table,
+    .totals,
+    .footer {
+        page-break-inside: avoid;
+    }
+
+    /* Espaciado mínimo para impresoras térmicas */
+    h1, h2, h3, h4, h5, h6 {
+        margin: 0 0 2mm 0;
+    }
+
+    p {
+        margin: 0 0 1mm 0;
+    }
+
+    /* Asegurar que el texto negro sea completamente negro */
+    * {
+        -webkit-print-color-adjust: exact !important;
+        color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+}
+
+/* Estilos específicos para impresoras de 58mm */
+@media print and (max-width: 58mm) {
+    body {
+        font-size: 9px;
+    }
+
+    .business-name {
+        font-size: 12px;
+    }
+
+    .items-table,
+    .sale-info,
+    .totals {
+        font-size: 8px;
+    }
+
+    .total-row.final {
+        font-size: 10px;
+    }
+
+    .footer {
+        font-size: 7px;
+    }
+}
+
+/* Estilos para previsualización en pantalla */
+@media screen {
+    .thermal-preview {
+        background: #f0f0f0;
+        padding: 20px;
+        max-width: 400px;
+        margin: 0 auto;
+    }
+
+    .thermal-preview .ticket {
+        background: white;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        padding: 10px;
+        border-radius: 5px;
+    }
+}
+
+/* Configuraciones específicas por tipo de impresora */
+.thermal-58mm {
+    max-width: 58mm;
+}
+
+.thermal-80mm {
+    max-width: 80mm;
+}
+
+/* Códigos de barras y QR (para futuras implementaciones) */
+.barcode {
+    text-align: center;
+    margin: 3mm 0;
+    font-family: 'Libre Barcode 128', monospace;
+    font-size: 24px;
+    letter-spacing: 0;
+}
+
+.qr-code {
+    text-align: center;
+    margin: 3mm 0;
+}
+
+/* Emojis y símbolos optimizados */
+.emoji {
+    font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
+    font-size: 1.2em;
+}
+
+/* Optimizaciones para velocidad de impresión */
+.fast-print {
+    font-family: monospace;
+    font-weight: normal;
+    font-style: normal;
+    text-decoration: none;
+}
+
+/* Configuración para papel continuo */
+.continuous-paper {
+    page-break-after: avoid;
+}
+
+.continuous-paper:last-child {
+    page-break-after: auto;
+}
