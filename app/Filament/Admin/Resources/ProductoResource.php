@@ -21,6 +21,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Actions\BulkActionGroup;
 use Filament\Tables\Actions\DeleteBulkAction;
+use Illuminate\Database\Eloquent\Collection;
 
 class ProductoResource extends Resource
 {
@@ -139,18 +140,50 @@ class ProductoResource extends Resource
                         Grid::make(2)
                             ->schema([
                                 TextInput::make('precio_compra_referencia')
-                                    ->label('Precio Compra Referencia')
+                                    ->label('Precio Compra Promedio')
                                     ->numeric()
                                     ->step(0.01)
                                     ->prefix(CurrencyHelper::getCurrencySymbol())
-                                    ->helperText('Precio promedio de compra en ' . CurrencyHelper::getCurrency()),
+                                    ->helperText('Calculado automáticamente como promedio de compras del año ' . now()->year)
+                                    ->disabled()
+                                    ->dehydrated()
+                                    ->default(function (callable $get) {
+                                        // Si es un producto existente, calcular el promedio
+                                        $record = $get('../../record');
+                                        if ($record instanceof \App\Models\Producto) {
+                                            return $record->calcularPrecioPromedioCompraAnual();
+                                        }
+                                        return 0;
+                                    })
+                                    ->formatStateUsing(function ($state, $record) {
+                                        if ($record instanceof \App\Models\Producto) {
+                                            return $record->calcularPrecioPromedioCompraAnual();
+                                        }
+                                        return $state ?? 0;
+                                    }),
                                     
                                 TextInput::make('precio_venta_sugerido')
-                                    ->label('Precio Venta Sugerido')
+                                    ->label('Precio Venta promedio')
                                     ->numeric()
                                     ->step(0.01)
                                     ->prefix(CurrencyHelper::getCurrencySymbol())
-                                    ->helperText('Precio sugerido de venta en ' . CurrencyHelper::getCurrency()),
+                                    ->helperText('Calculado automáticamente como promedio de ventas del año ' . now()->year)
+                                    ->disabled()
+                                    ->dehydrated()
+                                    ->default(function (callable $get) {
+                                        // Si es un producto existente, calcular el promedio
+                                        $record = $get('../../record');
+                                        if ($record instanceof \App\Models\Producto) {
+                                            return $record->calcularPrecioPromedioVentaAnual();
+                                        }
+                                        return 0;
+                                    })
+                                    ->formatStateUsing(function ($state, $record) {
+                                        if ($record instanceof \App\Models\Producto) {
+                                            return $record->calcularPrecioPromedioVentaAnual();
+                                        }
+                                        return $state ?? 0;
+                                    }),
                             ]),
                     ]),
                     
@@ -229,12 +262,18 @@ class ProductoResource extends Resource
                     
                 TextColumn::make('precio_compra_referencia')
                     ->label('P. Compra')
+                    ->state(function ($record) {
+                        return $record->calcularPrecioPromedioCompraAnual();
+                    })
                     ->money(CurrencyHelper::getCurrency(), locale: CurrencyHelper::getLocale())
                     ->sortable()
                     ->toggleable(),
                     
                 TextColumn::make('precio_venta_sugerido')
                     ->label('P. Venta')
+                    ->state(function ($record) {
+                        return $record->calcularPrecioPromedioVentaAnual();
+                    })
                     ->money(CurrencyHelper::getCurrency(), locale: CurrencyHelper::getLocale())
                     ->sortable()
                     ->toggleable(),
@@ -242,15 +281,21 @@ class ProductoResource extends Resource
                 TextColumn::make('margen_ganancia')
                     ->label('Margen %')
                     ->state(function ($record) {
-                        if ($record->precio_compra_referencia && $record->precio_venta_sugerido && $record->precio_compra_referencia > 0) {
-                            $margen = (($record->precio_venta_sugerido - $record->precio_compra_referencia) / $record->precio_compra_referencia) * 100;
+                        $precioCompra = $record->calcularPrecioPromedioCompraAnual();
+                        $precioVenta = $record->calcularPrecioPromedioVentaAnual();
+                        
+                        if ($precioCompra && $precioVenta && $precioCompra > 0) {
+                            $margen = (($precioVenta - $precioCompra) / $precioCompra) * 100;
                             return number_format($margen, 1) . '%';
                         }
                         return 'N/A';
                     })
                     ->color(function ($record) {
-                        if ($record->precio_compra_referencia && $record->precio_venta_sugerido && $record->precio_compra_referencia > 0) {
-                            $margen = (($record->precio_venta_sugerido - $record->precio_compra_referencia) / $record->precio_compra_referencia) * 100;
+                        $precioCompra = $record->calcularPrecioPromedioCompraAnual();
+                        $precioVenta = $record->calcularPrecioPromedioVentaAnual();
+                        
+                        if ($precioCompra && $precioVenta && $precioCompra > 0) {
+                            $margen = (($precioVenta - $precioCompra) / $precioCompra) * 100;
                             return $margen >= 30 ? 'success' : ($margen >= 15 ? 'warning' : 'danger');
                         }
                         return 'gray';
@@ -313,12 +358,88 @@ class ProductoResource extends Resource
                     ]),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\Action::make('recalcular_precios')
+                    ->label('Recalcular Precios')
+                    ->icon('heroicon-o-calculator')
+                    ->color('warning')
+                    ->action(function (Producto $record) {
+                        $precioCompraAnterior = $record->precio_compra_referencia;
+                        $precioVentaAnterior = $record->precio_venta_sugerido;
+                        
+                        $record->actualizarPrecioReferenciaAutomatico();
+                        $record->actualizarPrecioVentaAutomatico();
+                        $record->refresh();
+                        
+                        $cambiosCompra = $record->precio_compra_referencia != $precioCompraAnterior;
+                        $cambiosVenta = $record->precio_venta_sugerido != $precioVentaAnterior;
+                        
+                        if ($cambiosCompra || $cambiosVenta) {
+                            $mensaje = "Precios actualizados:\n";
+                            if ($cambiosCompra) {
+                                $mensaje .= "• Compra: $" . number_format($precioCompraAnterior, 2) . " → $" . number_format($record->precio_compra_referencia, 2) . "\n";
+                            }
+                            if ($cambiosVenta) {
+                                $mensaje .= "• Venta: $" . number_format($precioVentaAnterior, 2) . " → $" . number_format($record->precio_venta_sugerido, 2);
+                            }
+                            
+                            \Filament\Notifications\Notification::make()
+                                ->title('Precios actualizados')
+                                ->body($mensaje)
+                                ->success()
+                                ->send();
+                        } else {
+                            \Filament\Notifications\Notification::make()
+                                ->title('Sin cambios')
+                                ->body('Los precios no requieren actualización')
+                                ->info()
+                                ->send();
+                        }
+                    })
+                    ->requiresConfirmation()
+                    ->modalHeading('Recalcular Precios de Compra y Venta')
+                    ->modalDescription('¿Estás seguro de que quieres recalcular los precios basados en el promedio de compras y ventas del año actual?'),
+                Tables\Actions\EditAction::make()
+                    ->label('Editar'),
+                Tables\Actions\DeleteAction::make()
+                    ->label('Eliminar'),
             ])
             ->bulkActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    Tables\Actions\BulkAction::make('recalcular_precios_masivo')
+                        ->label('Recalcular Precios (Compra y Venta)')
+                        ->icon('heroicon-o-calculator')
+                        ->color('warning')
+                        ->action(function (Collection $records) {
+                            $actualizadosCompra = 0;
+                            $actualizadosVenta = 0;
+                            
+                            foreach ($records as $record) {
+                                $precioCompraAnterior = $record->precio_compra_referencia;
+                                $precioVentaAnterior = $record->precio_venta_sugerido;
+                                
+                                $record->actualizarPrecioReferenciaAutomatico();
+                                $record->actualizarPrecioVentaAutomatico();
+                                $record->refresh();
+                                
+                                if ($record->precio_compra_referencia != $precioCompraAnterior) {
+                                    $actualizadosCompra++;
+                                }
+                                if ($record->precio_venta_sugerido != $precioVentaAnterior) {
+                                    $actualizadosVenta++;
+                                }
+                            }
+                            
+                            \Filament\Notifications\Notification::make()
+                                ->title('Recalculo completado')
+                                ->body("Precios actualizados: {$actualizadosCompra} compras y {$actualizadosVenta} ventas de {$records->count()} productos")
+                                ->success()
+                                ->send();
+                        })
+                        ->requiresConfirmation()
+                        ->modalHeading('Recalcular Precios de Compra y Venta')
+                        ->modalDescription('¿Estás seguro de que quieres recalcular los precios de compra y venta de los productos seleccionados?'),
+                    DeleteBulkAction::make()
+                        ->label('Eliminar Seleccionados'),
                 ]),
             ])
             ->defaultSort('created_at', 'desc');

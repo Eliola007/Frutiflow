@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Helpers\CurrencyHelper;
@@ -58,14 +59,24 @@ class Producto extends Model implements Auditable
         'precio_venta_formatted'
     ];
 
-    public function compras(): HasMany
+    public function ventaItems(): HasMany
     {
-        return $this->hasMany(Compra::class);
+        return $this->hasMany(VentaItem::class);
     }
 
-    public function ventas(): HasMany
+    public function compraItems(): HasMany
     {
-        return $this->hasMany(Venta::class);
+        return $this->hasMany(CompraItem::class);
+    }
+
+    public function ventas()
+    {
+        return $this->hasManyThrough(Venta::class, VentaItem::class, 'producto_id', 'id', 'id', 'venta_id');
+    }
+
+    public function compras()
+    {
+        return $this->hasManyThrough(Compra::class, CompraItem::class, 'producto_id', 'id', 'id', 'compra_id');
     }
 
     public function inventarios(): HasMany
@@ -137,9 +148,12 @@ class Producto extends Model implements Auditable
         $periodo = 30; // últimos 30 días
         $fechaInicio = now()->subDays($periodo);
         
-        $ventasRecientes = $this->ventas()
-            ->where('fecha_venta', '>=', $fechaInicio)
-            ->where('estado', 'completada')
+        // Obtener ventas usando venta_items y join con ventas
+        $ventasRecientes = $this->ventaItems()
+            ->whereHas('venta', function($query) use ($fechaInicio) {
+                $query->where('fecha_venta', '>=', $fechaInicio)
+                      ->where('estado', '!=', 'cancelada');
+            })
             ->sum('cantidad');
 
         $promedioVentasDiarias = $ventasRecientes / $periodo;
@@ -306,6 +320,51 @@ class Producto extends Model implements Auditable
     }
 
     // Validaciones
+    public function calcularPrecioPromedioCompraAnual(): float
+    {
+        $añoActual = now()->year;
+        
+        // Obtener el promedio de precio de compra de todas las compras del año actual
+        $promedioCompra = $this->compraItems()
+            ->whereHas('compra', function($query) use ($añoActual) {
+                $query->whereYear('fecha_compra', $añoActual);
+            })
+            ->avg('precio_unitario');
+            
+        return $promedioCompra ? round($promedioCompra, 2) : 0.00;
+    }
+    
+    public function actualizarPrecioReferenciaAutomatico(): void
+    {
+        $nuevoPrecio = $this->calcularPrecioPromedioCompraAnual();
+        if ($nuevoPrecio > 0) {
+            $this->update(['precio_compra_referencia' => $nuevoPrecio]);
+        }
+    }
+    
+    public function calcularPrecioPromedioVentaAnual(): float
+    {
+        $añoActual = now()->year;
+        
+        // Obtener el promedio de precio de venta de todas las ventas del año actual
+        $promedioVenta = $this->ventaItems()
+            ->whereHas('venta', function($query) use ($añoActual) {
+                $query->whereYear('fecha_venta', $añoActual)
+                      ->where('estado', '!=', 'cancelada');
+            })
+            ->avg('precio_unitario');
+            
+        return $promedioVenta ? round($promedioVenta, 2) : 0.00;
+    }
+    
+    public function actualizarPrecioVentaAutomatico(): void
+    {
+        $nuevoPrecio = $this->calcularPrecioPromedioVentaAnual();
+        if ($nuevoPrecio > 0) {
+            $this->update(['precio_venta_sugerido' => $nuevoPrecio]);
+        }
+    }
+
     public function puedeEliminarse(): bool
     {
         return $this->stock_total <= 0 && $this->compras()->count() === 0;

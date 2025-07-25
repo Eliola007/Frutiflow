@@ -51,34 +51,45 @@ class ClienteResource extends Resource
                                     ->label('Nombre Completo')
                                     ->required()
                                     ->maxLength(255)
-                                    ->placeholder('Ej: Juan Pérez García'),
+                                    ->placeholder('Ej: Juan Pérez García')
+                                    ->columnSpan(2),
                                     
-                                TextInput::make('documento')
-                                    ->label('Documento')
-                                    ->required()
-                                    ->maxLength(20)
-                                    ->placeholder('Ej: CURP, RFC, INE'),
-                                    
-                                Select::make('tipo_documento')
-                                    ->label('Tipo de Documento')
-                                    ->options([
-                                        'cedula' => 'Cédula',
-                                        'rut' => 'RUT',
-                                        'pasaporte' => 'Pasaporte',
-                                        'nit' => 'NIT',
-                                    ])
-                                    ->default('cedula')
-                                    ->native(false)
-                                    ->required(),
-                            ]),
-                            
-                        Grid::make(1)
-                            ->schema([
                                 TextInput::make('telefono')
                                     ->label('Teléfono')
                                     ->tel()
                                     ->maxLength(20)
                                     ->placeholder('Ej: +52 55 1234 5678'),
+                            ]),
+                            
+                        Grid::make(1)
+                            ->schema([
+                                TextInput::make('rfc')
+                                    ->label('RFC (Opcional)')
+                                    ->length(13)
+                                    ->placeholder('Ej: XAXX010101000')
+                                    ->helperText('RFC de 13 caracteres (4 letras + 6 números + 3 alfanuméricos)')
+                                    ->rule('regex:/^[A-Z]{4}[0-9]{6}[A-Z0-9]{3}$/')
+                                    ->rules([
+                                        function () {
+                                            return function (string $attribute, $value, \Closure $fail) {
+                                                if ($value && !\App\Models\Cliente::validarRFC($value)) {
+                                                    $fail('El RFC no tiene un formato válido o contiene una fecha inválida.');
+                                                }
+                                            };
+                                        },
+                                    ])
+                                    ->unique(ignoreRecord: true)
+                                    ->validationMessages([
+                                        'unique' => 'Este RFC ya está registrado en el sistema.',
+                                        'length' => 'El RFC debe tener exactamente 13 caracteres.',
+                                        'regex' => 'El RFC debe tener el formato correcto: 4 letras + 6 números + 3 alfanuméricos.',
+                                    ])
+                                    ->reactive()
+                                    ->afterStateUpdated(function ($state, callable $set) {
+                                        if ($state) {
+                                            $set('rfc', strtoupper($state));
+                                        }
+                                    }),
                             ]),
                             
                         Textarea::make('direccion')
@@ -161,6 +172,15 @@ class ClienteResource extends Resource
                     ->searchable()
                     ->sortable()
                     ->weight(FontWeight::Bold),
+                    
+                TextColumn::make('rfc')
+                    ->label('RFC')
+                    ->searchable()
+                    ->sortable()
+                    ->copyable()
+                    ->weight(FontWeight::Bold)
+                    ->color('primary')
+                    ->placeholder('Sin RFC'),
                     
                 TextColumn::make('telefono')
                     ->label('Teléfono')

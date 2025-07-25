@@ -11,8 +11,7 @@ class Cliente extends Model
 {
     protected $fillable = [
         'nombre',
-        'documento',
-        'tipo_documento',
+        'rfc',
         'telefono',
         'email',
         'direccion',
@@ -162,5 +161,37 @@ class Cliente extends Model
         }
         
         $this->save();
+    }
+
+    // Método para validar RFC mexicano
+    public static function validarRFC(string $rfc): bool
+    {
+        // Convertir a mayúsculas
+        $rfc = strtoupper(trim($rfc));
+        
+        // Verificar longitud
+        if (strlen($rfc) !== 13) {
+            return false;
+        }
+        
+        // Verificar formato: 4 letras + 6 números + 3 alfanuméricos
+        if (!preg_match('/^[A-Z]{4}[0-9]{6}[A-Z0-9]{3}$/', $rfc)) {
+            return false;
+        }
+        
+        // Verificar que la fecha sea válida (YYMMDD)
+        $fecha = substr($rfc, 4, 6);
+        $year = '19' . substr($fecha, 0, 2);
+        if (intval(substr($fecha, 0, 2)) <= 30) {
+            $year = '20' . substr($fecha, 0, 2);
+        }
+        $month = substr($fecha, 2, 2);
+        $day = substr($fecha, 4, 2);
+        
+        if (!checkdate(intval($month), intval($day), intval($year))) {
+            return false;
+        }
+        
+        return true;
     }
 }
