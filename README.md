@@ -6,7 +6,8 @@ Sistema completo de gestión de inventario de frutas desarrollado con Laravel 11
 
 - **🔄 Gestión de Inventario PEPS**: Control automático de stock con lógica "Primero en Entrar, Primero en Salir"
 - **🛒 Sistema de Compras Avanzado**: Compras multi-producto con Repeater para múltiples items por transacción
-- **💳 Control de Créditos Integral**: Sistema completo de gestión crediticia con límites, pagos y morosidad
+- **�️ Sistema de Ventas Integral**: Ventas multi-producto con control de inventario PEPS y gestión de crédito
+- **�💳 Control de Créditos Integral**: Sistema completo de gestión crediticia con límites, pagos y morosidad
 - **📊 Dashboard con Widgets**: Múltiples widgets interactivos con métricas en tiempo real
 - **🤖 Metas Inteligentes**: Cálculo automático de objetivos basado en datos históricos y tendencias
 - **💰 Soporte para Pesos Mexicanos**: Formato de moneda MXN con locale mexicano
@@ -60,7 +61,50 @@ Sistema completo de gestión de inventario de frutas desarrollado con Laravel 11
 - **Persistencia**: Notificaciones importantes permanecen visibles
 - **Contexto Detallado**: Información específica del producto y porcentaje de diferencia
 
-## 📊 Dashboard y Widgets
+## �️ Sistema de Ventas Multi-Producto
+
+### 🎯 Nueva Arquitectura de Ventas
+- **Modelo Venta**: Información general de la transacción (cliente, fecha, total, método de pago, estado)
+- **Modelo VentaItem**: Items individuales por venta (producto, cantidad, precio, descuento)
+- **Relación hasMany**: Una venta puede incluir múltiples productos diferentes
+- **Sistema MOSTRADOR**: Cliente predeterminado para ventas rápidas al contado
+- **Numeración Automática**: Formato VEN-####-YYYY con secuencia anual
+
+### 🎨 Interfaz Táctil Optimizada
+- **Diseño Touch-Friendly**: Botones grandes y campos amplios para pantallas táctiles
+- **Múltiples Productos**: Repeater dinámico para agregar/eliminar productos sin perder datos
+- **Cálculos en Tiempo Real**: Subtotales, descuentos y total se actualizan automáticamente
+- **Validación de Stock**: Verificación automática de disponibilidad antes de vender
+- **Precio Automático**: Al seleccionar producto, se carga automáticamente el precio de venta
+- **Cliente Predeterminado**: MOSTRADOR preseleccionado para ventas rápidas
+
+### 💰 Gestión de Pagos y Crédito
+- **Métodos de Pago**: Efectivo, tarjetas (débito/crédito), transferencia, crédito, mixto
+- **Tipos de Venta**: Al contado o a crédito con validación de límites
+- **Crédito Disponible**: Visualización en tiempo real del crédito del cliente
+- **Monto Recibido y Cambio**: Cálculo automático para pagos en efectivo
+- **Control de Crédito**: Validación automática de límites crediticios
+
+### 🔄 Integración PEPS Automática
+- **Deducción PEPS**: Al procesar venta, se deduce automáticamente del inventario más antiguo
+- **Verificación de Stock**: Control previo de disponibilidad por producto
+- **Actualización Instantánea**: Stock de productos se actualiza en tiempo real
+- **Trazabilidad**: Registro de qué lotes se consumieron en cada venta
+- **Estados Inteligentes**: Venta procesada = inventario actualizado automáticamente
+
+### 🧮 Sistema de Descuentos Inteligente
+- **Descuento por Unidad**: Descuento individual que se multiplica por la cantidad
+- **Cálculo Automático**: (Cantidad × Precio) - (Descuento × Cantidad) = Subtotal
+- **Descuento General**: Descuento adicional aplicable al total de la venta
+- **Validación de Precios**: Campos de texto con validación numérica para mejor UX
+
+### 📊 Estados y Control
+- **Estados de Venta**: Pendiente, Procesada (predeterminado), Enviada, Entregada, Cancelada
+- **Validaciones de Eliminación**: Solo ventas pendientes pueden eliminarse
+- **Protección de Datos**: Confirmaciones antes de acciones críticas
+- **Bulk Actions**: Operaciones masivas con validaciones de estado
+
+## �📊 Dashboard y Widgets
 
 ### 🍎 Módulo de Productos
 1. **ProductosOverviewWidget** - Estadísticas Generales
@@ -137,6 +181,27 @@ Sistema completo de gestión de inventario de frutas desarrollado con Laravel 11
    - Comparación automática: pagos realizados vs metas inteligentes
    - Gráfico de líneas con formato MXN
    - Seguimiento predictivo de flujo de caja
+
+### 🛍️ Módulo de Ventas
+1. **VentasWidget** - Estadísticas de Ventas
+   - Ventas de hoy vs ayer (comparación y tendencia)
+   - Ventas del mes vs mes anterior
+   - Ventas del año vs año anterior
+   - Indicadores de crecimiento con colores dinámicos
+   - Formato de moneda mexicana (MXN)
+   - Actualización en tiempo real cada 30 segundos
+
+2. **VentasEvolucionChart** - Análisis Temporal
+   - Evolución de ventas de los últimos 12 meses
+   - Gráfico de líneas con tendencias mensuales
+   - Comparación año actual vs año anterior
+   - Tooltips con información detallada
+
+3. **VentasTopProductosChart** - Productos Más Vendidos
+   - Top 10 productos por volumen de ventas
+   - Gráfico de barras horizontales
+   - Datos de cantidad vendida por producto
+   - Colores diferenciados por rendimiento
 
 ## 🏢 Gestión de Proveedores y Pagos
 
@@ -256,13 +321,27 @@ El sistema utiliza SQLite por defecto para facilitar el desarrollo y despliegue.
 - **CompraObserver**: Automatización de procesos de compra
 - **PagoClienteObserver**: Actualización automática de saldos
 - **PagoProveedorObserver**: Control de pagos a proveedores
+- **VentaObserver**: Procesamiento PEPS automático en ventas
 - **Notificaciones**: Sistema de alertas en tiempo real
 
 ### 🎨 UI/UX
 - **Filament 3**: Panel administrativo moderno y responsivo
 - **Widgets Personalizados**: Componentes específicos del negocio
+- **Interfaz Táctil**: Optimizada para tablets y pantallas touch
+- **Repeaters Dinámicos**: Formularios multi-item sin perder datos
+- **Validación en Tiempo Real**: Feedback inmediato al usuario
 - **Tema Personalizado**: Colores y diseño adaptado al sector
 - **Navegación Intuitiva**: Menús organizados por módulos
+
+### 🚀 Mejoras Recientes (v2.0)
+- **Sistema de Ventas Multi-Producto**: Nueva arquitectura con VentaItem
+- **Interfaz Táctil Mejorada**: Botones grandes y campos optimizados
+- **Validación de Campos Numéricos**: Conversión segura de texto a número
+- **Descuentos Inteligentes**: Sistema de descuentos por unidad
+- **Widget de Ventas**: Dashboard actualizado con métricas de ventas
+- **Cliente MOSTRADOR**: Sistema de ventas rápidas al contado
+- **Estados de Venta**: Control de flujo con validaciones
+- **Protección de Datos**: Validaciones antes de eliminar registros
 
 ## 🌟 Módulos del Sistema
 
@@ -297,11 +376,19 @@ El sistema utiliza SQLite por defecto para facilitar el desarrollo y despliegue.
 - Generación automática de lotes
 - Integración directa con inventario
 
-### 💰 Ventas
-- Procesamiento PEPS automático
+### �️ Ventas
+- **Nueva Arquitectura Multi-Producto**
+- Sistema de ventas con múltiples items por transacción
+- Interfaz táctil optimizada para point-of-sale
+- Integración PEPS automática con inventario
 - Control de crédito en tiempo real
-- Múltiples métodos de pago
-- Facturación integrada
+- Múltiples métodos de pago (efectivo, tarjetas, transferencia, crédito)
+- Cliente MOSTRADOR para ventas rápidas
+- Descuentos inteligentes por unidad y generales
+- Numeración automática (VEN-####-YYYY)
+- Validación de stock en tiempo real
+- Estados de venta con control de flujo
+- Dashboard con widgets de análisis de ventas
 
 ### 🧾 Gastos
 - Categorización de gastos operativos
