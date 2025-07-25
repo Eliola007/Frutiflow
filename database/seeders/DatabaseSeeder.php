@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
             ProductoSeeder::class,
             ClienteSeeder::class,
             ProveedorSeeder::class,
+            ConceptoGastoSeeder::class,
         ]);
 
         // Ejecutar seeders que requieren datos existentes (usuario y entidades)
