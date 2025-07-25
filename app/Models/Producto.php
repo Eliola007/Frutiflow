@@ -7,9 +7,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Helpers\CurrencyHelper;
+use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Auditable as AuditableTrait;
 
-class Producto extends Model
+class Producto extends Model implements Auditable
 {
+    use AuditableTrait;
     protected $fillable = [
         'codigo',
         'nombre',

@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             RoleSeeder::class,
             UserSeeder::class, // Crear usuarios primero
+            PermissionsSeeder::class, // Crear permisos y asignar roles
         ]);
 
         // Ejecutar seeders que NO requieren usuario

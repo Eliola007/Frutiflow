@@ -17,19 +17,32 @@ class RoleResource extends Resource
 {
     protected static ?string $model = Role::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-key';
+    protected static ?string $navigationIcon = 'heroicon-o-user-group';
     
-    protected static ?string $navigationLabel = 'Roles y Permisos';
+    protected static ?string $navigationLabel = 'Roles del Sistema';
     
     protected static ?string $navigationGroup = 'Administración';
     
     protected static ?int $navigationSort = 1;
+    
+    protected static ?string $modelLabel = 'Rol';
+    
+    protected static ?string $pluralModelLabel = 'Roles';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                //
+                Forms\Components\TextInput::make('nombre')
+                    ->required(),
+                Forms\Components\TextInput::make('descripcion'),
+                Forms\Components\Textarea::make('permisos')
+                    ->columnSpanFull(),
+                Forms\Components\Toggle::make('activo')
+                    ->required(),
+                Forms\Components\TextInput::make('guard_name')
+                    ->required(),
+                Forms\Components\TextInput::make('name'),
             ]);
     }
 
@@ -37,7 +50,24 @@ class RoleResource extends Resource
     {
         return $table
             ->columns([
-                //
+                Tables\Columns\TextColumn::make('nombre')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('descripcion')
+                    ->searchable(),
+                Tables\Columns\IconColumn::make('activo')
+                    ->boolean(),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('updated_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('guard_name')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('name')
+                    ->searchable(),
             ])
             ->filters([
                 //

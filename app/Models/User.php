@@ -6,10 +6,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Permission\Traits\HasRoles;
+use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Auditable as AuditableTrait;
 
-class User extends Authenticatable
+class User extends Authenticatable implements Auditable
 {
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasRoles, AuditableTrait;
 
     /**
      * The attributes that are mass assignable.
@@ -66,5 +69,26 @@ class User extends Authenticatable
     public function gastos()
     {
         return $this->hasMany(Gasto::class);
+    }
+
+    /**
+     * Productos asignados al usuario (para Socios Comerciales)
+     */
+    public function productosAsignados()
+    {
+        return $this->belongsToMany(Producto::class, 'user_productos')
+                    ->withPivot(['asignado_en', 'asignado_hasta', 'activo'])
+                    ->withTimestamps()
+                    ->wherePivot('activo', true);
+    }
+
+    /**
+     * Todos los productos asignados (incluidos inactivos)
+     */
+    public function todosLosProductosAsignados()
+    {
+        return $this->belongsToMany(Producto::class, 'user_productos')
+                    ->withPivot(['asignado_en', 'asignado_hasta', 'activo'])
+                    ->withTimestamps();
     }
 }

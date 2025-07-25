@@ -57,11 +57,41 @@ class RoleSeeder extends Seeder
                     'inventario.read', 'inventario.update'
                 ],
                 'activo' => true
+            ],
+            [
+                'nombre' => 'Cajero',
+                'descripcion' => 'Operaciones de caja y ventas básicas',
+                'permisos' => [
+                    'ventas.create', 'ventas.read', 'ventas.update', 'ventas.delete',
+                    'compras.read', 'compras.create',
+                    'productos.read',
+                    'clientes.read', 'clientes.create', 'clientes.update',
+                    'proveedores.read',
+                    'inventario.read',
+                    'pagos.create', 'pagos.read',
+                    'gastos.read', 'gastos.create'
+                ],
+                'activo' => true
+            ],
+            [
+                'nombre' => 'Socio Comercial',
+                'descripcion' => 'Acceso limitado a reportes de productos específicos',
+                'permisos' => [
+                    'productos.read',
+                    'reportes.productos', 'reportes.ventas', 'reportes.inventario'
+                ],
+                'activo' => true
             ]
         ];
 
         foreach ($roles as $roleData) {
-            Role::create($roleData);
+            // Agregar campos de Spatie
+            $roleData['name'] = $roleData['nombre'];
+            $roleData['guard_name'] = 'web';
+            
+            Role::firstOrCreate([
+                'nombre' => $roleData['nombre']
+            ], $roleData);
         }
     }
 }

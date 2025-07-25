@@ -304,25 +304,64 @@ php artisan serve
 ### 🗃️ Base de Datos
 El sistema utiliza SQLite por defecto para facilitar el desarrollo y despliegue. La base de datos se crea automáticamente en `database/database.sqlite`.
 
-### 👤 Usuario por Defecto
+### 👤 Usuarios por Defecto
+
+#### 🔧 **Administrador Principal**
 - **Email**: admin@frutiflow.com
 - **Contraseña**: password
 - **Rol**: Administrador
+- **Permisos**: Acceso completo al sistema
+
+#### 💰 **Usuario Cajero**
+- **Email**: cajero@frutiflow.com
+- **Contraseña**: password
+- **Rol**: Cajero
+- **Permisos**: Ventas, clientes, productos (consulta), pagos de clientes
+
+#### 🤝 **Usuario Socio Comercial**
+- **Email**: socio@frutiflow.com
+- **Contraseña**: password
+- **Rol**: Socio Comercial
+- **Permisos**: Productos asignados únicamente, ventas restringidas
+
+#### 📊 **Usuario Reporteador**
+- **Email**: reportes@frutiflow.com
+- **Contraseña**: password
+- **Rol**: Reporteador
+- **Permisos**: Solo lectura, acceso completo a reportes
+
+#### 👀 **Usuario Visualizador**
+- **Email**: visualizador@frutiflow.com
+- **Contraseña**: password
+- **Rol**: Visualizador
+- **Permisos**: Consulta básica sin datos financieros
+
+#### 🔒 **Usuario Invitado**
+- **Email**: invitado@frutiflow.com
+- **Contraseña**: password
+- **Rol**: Invitado
+- **Permisos**: Acceso mínimo para demostraciones
+
+**Nota**: Cambia todas las contraseñas en producción por seguridad.
 
 ## 🔧 Funcionalidades Técnicas
 
 ### 🛡️ Seguridad
-- **Autenticación**: Laravel Sanctum
-- **Autorización**: Sistema de roles y permisos
-- **Validaciones**: Reglas de validación robustas
+- **Autenticación**: Sistema de login personalizado con Filament
+- **Autorización**: Sistema de roles y permisos granular con Spatie Permission
+- **Validaciones**: Reglas de validación robustas en todos los formularios
 - **Sanitización**: Limpieza automática de datos de entrada
+- **Auditoría**: Trazabilidad completa con Laravel Auditing (Owen-It)
+- **Middleware Personalizado**: Control de acceso por permisos y productos
 
 ### 🔄 Observers y Events
-- **CompraObserver**: Automatización de procesos de compra
-- **PagoClienteObserver**: Actualización automática de saldos
-- **PagoProveedorObserver**: Control de pagos a proveedores
+- **CompraObserver**: Automatización de procesos de compra e inventario
+- **PagoClienteObserver**: Actualización automática de saldos de clientes
+- **PagoProveedorObserver**: Control automático de pagos a proveedores
 - **VentaObserver**: Procesamiento PEPS automático en ventas
-- **Notificaciones**: Sistema de alertas en tiempo real
+- **UserObserver**: Control de cambios en usuarios y roles
+- **Auditing Events**: Registro automático de todas las operaciones
+- **Notificaciones**: Sistema de alertas en tiempo real y por email
 
 ### 🎨 UI/UX
 - **Filament 3**: Panel administrativo moderno y responsivo
@@ -333,6 +372,193 @@ El sistema utiliza SQLite por defecto para facilitar el desarrollo y despliegue.
 - **Tema Personalizado**: Colores y diseño adaptado al sector
 - **Navegación Intuitiva**: Menús organizados por módulos
 
+## 🔐 Sistema de Roles y Permisos
+
+### 🛡️ Arquitectura de Seguridad
+El sistema implementa un control de acceso granular basado en **Spatie Permission** con auditoría completa utilizando **Laravel Auditing (Owen-It)**. Esto garantiza tanto la seguridad como la trazabilidad total de todas las operaciones.
+
+### 👥 Roles del Sistema
+
+#### 🔧 **Administrador**
+- **Acceso Completo**: Todas las funcionalidades del sistema
+- **Gestión de Usuarios**: Crear, editar y asignar roles
+- **Configuración**: Parámetros generales y configuraciones avanzadas
+- **Reportes Avanzados**: Acceso a todos los reportes y análisis
+- **Auditoría**: Visualización completa del log de auditoría
+
+#### 💰 **Cajero**
+- **Ventas**: Crear, procesar y gestionar ventas
+- **Clientes**: Ver y gestionar información de clientes
+- **Productos**: Consultar catálogo y precios
+- **Inventario**: Ver stock disponible
+- **Pagos de Clientes**: Registrar cobros y abonos
+- **Sin Acceso**: Compras, configuración, reportes financieros
+
+#### 🤝 **Socio Comercial**
+- **Acceso Limitado por Productos**: Solo productos asignados específicamente
+- **Ventas Restringidas**: Solo productos de su cartera
+- **Clientes Propios**: Gestión de sus clientes asignados
+- **Inventario Filtrado**: Solo stock de productos asignados
+- **Reportes Básicos**: Métricas de sus productos únicamente
+
+#### 📊 **Reporteador**
+- **Solo Lectura**: Acceso de consulta a todos los módulos
+- **Reportes Completos**: Generar y exportar todos los reportes
+- **Dashboard**: Visualizar todos los widgets y métricas
+- **Sin Modificaciones**: No puede crear, editar o eliminar registros
+
+#### 👀 **Visualizador**
+- **Consulta Básica**: Ver información general del sistema
+- **Dashboard Limitado**: Widgets básicos sin datos sensibles
+- **Sin Reportes**: No acceso a reportes detallados
+- **Sin Datos Financieros**: No ver precios, costos o márgenes
+
+#### 🔒 **Invitado**
+- **Acceso Mínimo**: Solo dashboard básico
+- **Demo**: Perfecto para demostraciones del sistema
+- **Sin Datos Reales**: No acceso a información comercial
+
+### 📋 Sistema de Permisos Granulares
+
+El sistema cuenta con **52 permisos específicos** organizados por módulos:
+
+#### 🍎 **Productos** (6 permisos)
+- `productos.ver` - Visualizar catálogo de productos
+- `productos.crear` - Crear nuevos productos
+- `productos.editar` - Modificar productos existentes
+- `productos.eliminar` - Eliminar productos
+- `productos.importar` - Importar catálogos masivos
+- `productos.exportar` - Exportar listados de productos
+
+#### 💳 **Ventas** (6 permisos)
+- `ventas.ver` - Consultar ventas realizadas
+- `ventas.crear` - Procesar nuevas ventas
+- `ventas.editar` - Modificar ventas pendientes
+- `ventas.eliminar` - Cancelar ventas (solo pendientes)
+- `ventas.reportes` - Generar reportes de ventas
+- `ventas.dashboard` - Ver métricas en dashboard
+
+#### 🛒 **Compras** (6 permisos)
+- `compras.ver` - Consultar historial de compras
+- `compras.crear` - Registrar nuevas compras
+- `compras.editar` - Modificar compras pendientes
+- `compras.eliminar` - Eliminar compras
+- `compras.reportes` - Reportes de compras
+- `compras.recibir` - Procesar recepción de mercancía
+
+#### 📦 **Inventario** (5 permisos)
+- `inventario.ver` - Consultar stock disponible
+- `inventario.ajustar` - Realizar ajustes de inventario
+- `inventario.transferir` - Transferencias entre ubicaciones
+- `inventario.reportes` - Reportes de inventario
+- `inventario.alertas` - Ver alertas de stock y vencimientos
+
+#### 👥 **Clientes** (5 permisos)
+- `clientes.ver` - Consultar base de clientes
+- `clientes.crear` - Registrar nuevos clientes
+- `clientes.editar` - Modificar información de clientes
+- `clientes.eliminar` - Eliminar clientes
+- `clientes.credito` - Gestionar límites de crédito
+
+#### 🏭 **Proveedores** (5 permisos)
+- `proveedores.ver` - Consultar catálogo de proveedores
+- `proveedores.crear` - Registrar nuevos proveedores
+- `proveedores.editar` - Modificar información
+- `proveedores.eliminar` - Eliminar proveedores
+- `proveedores.pagos` - Gestionar pagos a proveedores
+
+#### 📊 **Reportes** (4 permisos)
+- `reportes.ventas` - Reportes de ventas y clientes
+- `reportes.compras` - Reportes de compras y proveedores
+- `reportes.inventario` - Reportes de stock y movimientos
+- `reportes.financieros` - Reportes financieros y rentabilidad
+
+#### ⚙️ **Configuración** (4 permisos)
+- `configuracion.general` - Parámetros generales del sistema
+- `configuracion.usuarios` - Gestionar usuarios y roles
+- `configuracion.sistema` - Configuraciones avanzadas
+- `configuracion.backup` - Respaldos y restauración
+
+#### 👤 **Usuarios** (4 permisos)
+- `usuarios.ver` - Consultar lista de usuarios
+- `usuarios.crear` - Crear nuevos usuarios
+- `usuarios.editar` - Modificar usuarios existentes
+- `usuarios.roles` - Asignar y modificar roles
+
+#### 💰 **Gastos** (4 permisos)
+- `gastos.ver` - Consultar registro de gastos
+- `gastos.crear` - Registrar nuevos gastos
+- `gastos.editar` - Modificar gastos existentes
+- `gastos.eliminar` - Eliminar gastos
+
+#### 💳 **Pagos** (3 permisos)
+- `pagos.clientes` - Gestionar cobros de clientes
+- `pagos.proveedores` - Gestionar pagos a proveedores
+- `pagos.reportes` - Reportes de flujo de efectivo
+
+### 🔍 Sistema de Auditoría Completa
+
+#### 📝 **Registro Automático**
+- **Todas las Operaciones**: Cada acción queda registrada automáticamente
+- **Información Detallada**: Usuario, IP, navegador, fecha/hora exacta
+- **Cambios de Valores**: Before/After de cada campo modificado
+- **Eventos del Sistema**: Login, logout, cambios de roles, etc.
+
+#### 🏢 **Panel de Administración**
+- **Recurso de Auditoría**: Interfaz completa en Filament para revisar logs
+- **Filtros Avanzados**: Por usuario, fecha, tipo de evento, modelo
+- **Búsqueda Inteligente**: Localizar eventos específicos rápidamente
+- **Exportación**: Generar reportes de auditoría para compliance
+
+#### 📧 **Notificaciones de Seguridad**
+- **Cambios Críticos**: Notificaciones automáticas por email
+- **Intentos de Acceso**: Alertas de accesos no autorizados
+- **Modificaciones de Roles**: Notificación inmediata a administradores
+- **Configuración Flexible**: Personalizar qué eventos notificar
+
+### 🎯 Sistema de Asignación de Productos
+
+#### 📋 **Para Socios Comerciales**
+- **Productos Específicos**: Asignación individual por socio comercial
+- **Fechas de Vigencia**: Control temporal de asignaciones
+- **Estado Activo/Inactivo**: Activar/desactivar productos dinámicamente
+- **Interfaz Táctil**: Sistema de selección múltiple fácil de usar
+
+#### 🔒 **Control de Acceso**
+- **Filtrado Automático**: Solo ven productos asignados
+- **Validaciones**: No pueden vender productos no asignados
+- **Middleware Personalizado**: Verificación en cada operación
+- **Reportes Filtrados**: Métricas solo de productos permitidos
+
+### 🧪 **Sistema de Pruebas**
+
+#### 🔍 **Panel de Testing**
+- **Dashboard de Permisos**: Interfaz para probar funcionalidades por rol
+- **Simulación de Usuarios**: Probar el sistema desde perspectiva de cada rol
+- **Validación de Accesos**: Verificar que las restricciones funcionen correctamente
+- **Testing de Productos**: Probar asignaciones de socios comerciales
+
+#### 📊 **Métricas de Permisos**
+- **Contadores en Tiempo Real**: Cuántos permisos tiene cada rol
+- **Usuarios por Rol**: Distribución de usuarios en el sistema
+- **Productos Asignados**: Control de asignaciones por socio
+- **Log de Auditoría**: Últimas actividades del sistema
+
+### 🚀 **Implementación Técnica**
+
+#### 📦 **Tecnologías Utilizadas**
+- **Spatie Permission**: Gestión robusta de roles y permisos
+- **Laravel Auditing (Owen-It)**: Sistema de auditoría automática
+- **Filament Resources**: Interfaces administrativas completas
+- **Middleware Personalizado**: Control de acceso granular
+- **Observers**: Automatización de procesos de auditoría
+
+#### 🛠️ **Características Avanzadas**
+- **Seeder Inteligente**: Configuración automática de permisos y roles
+- **Migraciones Seguras**: Evita conflictos con tablas existentes
+- **Cache Optimizado**: Rendimiento mejorado en verificación de permisos
+- **Validaciones Robustas**: Verificaciones múltiples antes de acciones críticas
+
 ### 🚀 Mejoras Recientes (v2.0)
 - **Sistema de Ventas Multi-Producto**: Nueva arquitectura con VentaItem
 - **Interfaz Táctil Mejorada**: Botones grandes y campos optimizados
@@ -342,6 +568,18 @@ El sistema utiliza SQLite por defecto para facilitar el desarrollo y despliegue.
 - **Cliente MOSTRADOR**: Sistema de ventas rápidas al contado
 - **Estados de Venta**: Control de flujo con validaciones
 - **Protección de Datos**: Validaciones antes de eliminar registros
+
+### 🔐 Mejoras de Seguridad (v2.1)
+- **Sistema de Roles y Permisos**: Implementación completa con Spatie Permission
+- **6 Roles Específicos**: Administrador, Cajero, Socio Comercial, Reporteador, Visualizador, Invitado
+- **52 Permisos Granulares**: Control detallado por módulo y funcionalidad
+- **Auditoría Completa**: Sistema de trazabilidad con Laravel Auditing
+- **Asignación de Productos**: Control específico para socios comerciales
+- **Panel de Administración**: Recursos Filament para gestión completa
+- **Sistema de Testing**: Interface para validar permisos y funcionalidades
+- **Middleware Personalizado**: Verificaciones de acceso en tiempo real
+- **Notificaciones de Seguridad**: Alertas automáticas por email
+- **Usuarios de Demo**: 6 usuarios preconfigurados para testing
 
 ## 🌟 Módulos del Sistema
 
