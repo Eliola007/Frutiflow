@@ -21,8 +21,8 @@ Sistema completo de gestión de inventario de frutas desarrollado con Laravel 11
 
 - **Backend**: Laravel 11 (PHP 8.2+)
 - **Frontend Admin**: Filament 3 con Widgets, Charts y Repeaters
-- **Base de Datos**: SQLite con migraciones automáticas
-- **Autenticación**: Laravel Sanctum con roles
+- **Base de Datos**: MySQL con migraciones automáticas
+- **Autenticación**: Spatie Permission con roles y permisos
 - **UI Components**: Blade + Livewire + Chart.js
 - **Localización**: Español México (es_MX)
 - **Moneda**: Peso Mexicano (MXN)
@@ -203,6 +203,40 @@ Sistema completo de gestión de inventario de frutas desarrollado con Laravel 11
    - Datos de cantidad vendida por producto
    - Colores diferenciados por rendimiento
 
+### 💰 Módulo de Corte de Caja
+1. **Sistema de Corte Diario** - Control Financiero Preciso
+   - Un solo corte por día con control único por fecha
+   - Cálculo automático de totales basado en transacciones reales
+   - Desglose completo por formas de pago (JSON estructurado)
+   - Efectivo inicial y final para control de caja
+   - Observaciones para notas importantes del día
+
+2. **Control de Acceso por Roles** - Seguridad y Auditoría
+   - **Cajeros**: Pueden crear y ver cortes, editar solo sus cortes del día actual
+   - **Administradores**: Acceso completo, pueden editar cualquier corte
+   - Campo `editable` para control granular de modificaciones
+   - Trazabilidad completa con usuario responsable y timestamps
+
+3. **Generación de Reportes PDF** - Documentación Profesional
+   - Reportes automáticos con información completa del corte
+   - Diseño profesional con logos y formato empresarial
+   - Desglose detallado de ingresos, egresos y formas de pago
+   - Información del usuario responsable y fecha de generación
+
+4. **Integración Automática** - Cálculos Inteligentes
+   - **Total de Ventas**: Suma automática de ventas del día
+   - **Total de Ingresos**: Incluye ventas + pagos de clientes recibidos
+   - **Total de Egresos**: Suma de gastos + pagos a proveedores
+   - **Formas de Pago**: Desglose automático por método de pago
+   - Observer para recálculo automático al guardar cambios
+
+5. **Características Técnicas**
+   - Base de datos MySQL con campos decimales de alta precisión
+   - Políticas de autorización con Spatie Permission
+   - Interfaz Filament con formularios reactivos
+   - Validaciones robustas y manejo de errores
+   - Localización completa en español mexicano
+
 ## 🏢 Gestión de Proveedores y Pagos
 
 ### 📋 Sistema de Proveedores
@@ -272,7 +306,7 @@ Sistema completo de gestión de inventario de frutas desarrollado con Laravel 11
 - PHP 8.2 o superior
 - Composer 2.x
 - Node.js 18+ y NPM
-- SQLite 3.x
+- MySQL 8.0+ o MariaDB 10.4+
 
 ### ⚙️ Instalación
 
@@ -633,6 +667,16 @@ El sistema cuenta con **52 permisos específicos** organizados por módulos:
 - Control presupuestario
 - Análisis de costos
 - Reportes de rentabilidad
+
+### 💰 Corte de Caja
+- **Sistema Diario Preciso**: Un solo corte por día con cálculos automáticos
+- **Control de Acceso por Roles**: Cajeros y administradores con permisos diferenciados
+- **Auditoría Completa**: Trazabilidad de usuario responsable y timestamps
+- **Generación de PDF**: Reportes profesionales automáticos
+- **Integración Automática**: Cálculos basados en transacciones reales del día
+- **Desglose por Formas de Pago**: Control detallado de efectivo, tarjetas, transferencias
+- **Campo Editable**: Control granular de modificaciones por administrador
+- **Base de Datos MySQL**: Precisión decimal para cálculos financieros
 
 ## 📞 Soporte y Contribución
 

@@ -13,23 +13,8 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
-            RoleSeeder::class,
-            UserSeeder::class, // Crear usuarios primero
-            PermissionsSeeder::class, // Crear permisos y asignar roles
-        ]);
-
-        // Ejecutar seeders que NO requieren usuario
-        $this->call([
-            ProductoSeeder::class,
-            ClienteSeeder::class,
-            ProveedorSeeder::class,
-            ConceptoGastoSeeder::class,
-        ]);
-
-        // Ejecutar seeders que requieren datos existentes (usuario y entidades)
-        $this->call([
-            PagoClienteSeeder::class,
-            PagoProveedorSeeder::class,
+            RolesAndPermissionsSeeder::class, // Crear roles, permisos y usuario admin
+            ClienteSeeder::class, // Crear clientes de ejemplo
         ]);
     }
 }
