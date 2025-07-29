@@ -51,7 +51,9 @@
                 
                 <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 rounded-b-lg">
                     <div class="flex justify-end space-x-3">
-                        {{ $this->getFormActions() }}
+                        @foreach($this->getFormActions() as $action)
+                            {{ $action }}
+                        @endforeach
                     </div>
                 </div>
             </form>

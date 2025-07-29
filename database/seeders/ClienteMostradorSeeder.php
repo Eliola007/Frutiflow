@@ -15,14 +15,12 @@ class ClienteMostradorSeeder extends Seeder
     {
         // Crear cliente mostrador si no existe
         Cliente::firstOrCreate(
-            ['nombre' => 'MOSTRADOR'],
+            ['email' => 'mostrador@frutiflow.com'],
             [
-                'documento' => '000000000',
-                'tipo_documento' => 'cedula',
+                'nombre' => 'MOSTRADOR',
                 'telefono' => '000-000-0000',
                 'email' => 'mostrador@frutiflow.com',
                 'direccion' => 'Venta directa en mostrador',
-                'ciudad' => 'LOCAL',
                 'limite_credito' => 0.00,
                 'dias_credito' => 0,
                 'saldo_pendiente' => 0.00,

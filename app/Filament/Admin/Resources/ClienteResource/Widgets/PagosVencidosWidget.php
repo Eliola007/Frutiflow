@@ -24,7 +24,7 @@ class PagosVencidosWidget extends BaseWidget
                 Cliente::query()
                     ->where('saldo_pendiente', '>', 0)
                     ->where('dias_credito', '>', 0)
-                    ->whereRaw('DATE(updated_at, "+" || dias_credito || " days") < DATE("now")')
+                    ->whereRaw('DATE_ADD(updated_at, INTERVAL dias_credito DAY) < CURDATE()')
                     ->orderBy('updated_at', 'asc')
             )
             ->columns([

@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use GuzzleHttp\Client;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -14,7 +15,21 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             RolesAndPermissionsSeeder::class, // Crear roles, permisos y usuario admin
-            ClienteSeeder::class, // Crear clientes de ejemplo
+        ]);
+
+        // Ejecutar seeders que NO requieren usuario
+        $this->call([
+            ProductoSeeder::class,
+            // ClienteSeeder::class, // Comentado para evitar clientes de prueba
+            ProveedorSeeder::class,
+            ConceptoGastoSeeder::class,
+        ]);
+
+        // Ejecutar seeders que requieren datos existentes (usuario y entidades)
+        $this->call([
+            // PagoClienteSeeder::class, // Comentado porque no hay clientes de prueba
+            // PagoProveedorSeeder::class, // Comentado para evitar datos de prueba
+            ClienteMostradorSeeder::class,
         ]);
     }
 }
