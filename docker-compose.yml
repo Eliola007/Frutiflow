@@ -1,14 +1,15 @@
 version: '3.8'
 
 services:
-  app:
-    image: laravelphp/php-fpm
-    container_name: laravel_app
-    working_dir: /var/www
-    volumes:
-      - ./:/var/www
-    depends_on:
-      - db
+ app:
+  image: php:8.2-fpm
+  container_name: laravel_app
+  working_dir: /var/www
+  volumes:
+    - ./:/var/www
+  depends_on:
+    - db
+
 
   webserver:
     image: nginx:alpine
