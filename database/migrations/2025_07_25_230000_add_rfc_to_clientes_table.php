@@ -11,21 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('clientes', function (Blueprint $table) {
-            // Agregar campo RFC como requerido
-            $table->string('rfc', 13)->after('nombre');
-            
-            // Hacer documento opcional (remover unique si existe)
-            $table->string('documento')->nullable()->change();
-            
-            // Actualizar las opciones de tipo_documento para México
-            $table->dropColumn('tipo_documento');
-        });
-        
-        // Recrear el campo tipo_documento con nuevas opciones
-        Schema::table('clientes', function (Blueprint $table) {
-            $table->enum('tipo_documento', ['curp', 'ine', 'pasaporte', 'cedula_profesional', 'otro'])->default('curp')->nullable()->after('documento');
-        });
+    // Ya no se usa documento ni tipo_documento, no hacer nada
     }
 
     /**
@@ -36,16 +22,6 @@ return new class extends Migration
         Schema::table('clientes', function (Blueprint $table) {
             // Remover RFC
             $table->dropColumn('rfc');
-            
-            // Restaurar documento como requerido
-            $table->string('documento')->nullable(false)->change();
-            
-            // Restaurar tipo_documento original
-            $table->dropColumn('tipo_documento');
-        });
-        
-        Schema::table('clientes', function (Blueprint $table) {
-            $table->enum('tipo_documento', ['cedula', 'rut', 'pasaporte', 'nit'])->default('cedula')->after('documento');
         });
     }
 };

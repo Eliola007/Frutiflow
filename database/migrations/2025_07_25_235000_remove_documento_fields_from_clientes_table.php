@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -11,15 +12,25 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('clientes', function (Blueprint $table) {
-            // Primero eliminar el índice único del documento si existe
-            $table->dropUnique(['documento']);
-        });
+        // Eliminar el índice único solo si existe (MySQL)
+        $indexExists = collect(DB::select("SHOW INDEX FROM clientes WHERE Key_name = 'clientes_documento_unique'"))->isNotEmpty();
+        if ($indexExists) {
+            Schema::table('clientes', function (Blueprint $table) {
+                $table->dropUnique('clientes_documento_unique');
+            });
+        }
         
-        Schema::table('clientes', function (Blueprint $table) {
-            // Luego eliminar los campos documento y tipo_documento ya que no se usan en el sistema
-            $table->dropColumn(['documento', 'tipo_documento']);
-        });
+        // Eliminar las columnas solo si existen
+        if (Schema::hasColumn('clientes', 'documento')) {
+            Schema::table('clientes', function (Blueprint $table) {
+                $table->dropColumn('documento');
+            });
+        }
+        if (Schema::hasColumn('clientes', 'tipo_documento')) {
+            Schema::table('clientes', function (Blueprint $table) {
+                $table->dropColumn('tipo_documento');
+            });
+        }
     }
 
     /**

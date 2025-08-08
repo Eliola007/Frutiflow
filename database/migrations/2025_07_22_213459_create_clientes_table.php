@@ -25,7 +25,7 @@ return new class extends Migration
             $table->decimal('total_compras', 12, 2)->default(0);
             $table->timestamp('ultima_compra')->nullable();
             $table->boolean('activo')->default(true);
-            $table->string('rfc')->nullable();
+            $table->string('rfc')->nullable(); // documento eliminado, solo RFC
             $table->timestamps();
         });
     }
