@@ -1,0 +1,23 @@
+# Nixpacks configuration for Laravel
+providers = ["php", "composer"]
+
+[phases.setup]
+aptPkgs = ["libpng-dev", "libonig-dev", "libxml2-dev", "zip", "unzip"]
+
+[phases.install]
+cmds = [
+  "composer install --no-interaction --prefer-dist --optimize-autoloader"
+]
+
+[phases.build]
+cmds = [
+  "php artisan key:generate",
+  "php artisan migrate --force || true",
+  "php artisan config:cache",
+  "php artisan route:cache"
+]
+
+[phases.start]
+cmds = [
+  "php artisan serve --host=0.0.0.0 --port=$PORT"
+]
